@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mapfishprint geoblocks demo</title>
+    <link rel="stylesheet" type="text/css" href="node_modules/ol/ol.css" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- "ol/": "https://unpkg.com/ol@8.2.0/" -->
+    <script type="importmap">
+      {
+        "imports": {
+          "pbf": "./stub.js",
+          "rbush": "./node_modules/rbush/index.js",
+          "quickselect": "./node_modules/quickselect/index.js",
+          "ol": "./node_modules/ol/index.js",
+          "ol/": "./node_modules/ol/",
+          "@geoblocks/print": "./node_modules/@geoblocks/print/dist/print.js",
+          "@geoblocks/mapfishprint": "./lib/index.js",
+          "@geoblocks/mapfishprint/": "./lib/"
+        }
+      }
+    </script>
+    <h1>Print OL map as pdf with Mapfish Print</h1>
+    <div id="map" style="height: 400px; width: 100%;"></div>
+    <button id="print">Print!</button>
+    <textarea id="spec" style="height:200px; width: 100%; background-color: lightgray;"></textarea>
+    <textarea id="report" style="height:100px; width: 100%; background-color: lightgray;"></textarea>
+    <textarea id="result" style="height:50; width: 100%; background-color: lightgray;"></textarea>
+    <script type="module" src="./demo.js"></script>
+  </head>
+  <body>
+  </body>
+</html>

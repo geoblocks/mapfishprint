@@ -1,11 +1,11 @@
 import {Map, View} from 'ol';
 
-import {MapfishPrintBaseEncoder, BaseCustomizer} from '@geoblocks/mapfishprint';
+import {MFPEncoder, BaseCustomizer, requestReport, getDownloadUrl} from '@geoblocks/mapfishprint';
 import TileLayer from 'ol/layer/Tile.js';
 import OSM from 'ol/source/OSM.js';
 import {fromLonLat} from 'ol/proj.js';
 
-const MFP_URL = 'https://geomapfish-demo-2-5.camptocamp.com/printproxy';
+const MFP_URL = 'https://geomapfish-demo-2-8.camptocamp.com/printproxy';
 const layout = '1 A4 portrait'; // better take from MFP
 const map = new Map({
   target: 'map',
@@ -25,9 +25,7 @@ document.querySelector('#print').addEventListener('click', async () => {
   const reportEl = document.querySelector('#report');
   const resultEl = document.querySelector('#result');
   specEl.innerHTML = reportEl.innerHTML = resultEl.innerHTML = '';
-  class MyMfpBaseEncoder extends MapfishPrintBaseEncoder {}
-
-  const encoder = new MyMfpBaseEncoder(MFP_URL);
+  const encoder = new MFPEncoder(MFP_URL);
   const customizer = new BaseCustomizer([0, 0, 10000, 10000]);
   const spec = await encoder.createSpec({
     map,
@@ -46,11 +44,11 @@ document.querySelector('#print').addEventListener('click', async () => {
   console.log('spec', spec);
   specEl.innerHTML = JSON.stringify(spec, null, '  ');
 
-  const report = await encoder.requestReport(spec);
+  const report = await requestReport(MFP_URL, spec);
   console.log('report', report);
   reportEl.innerHTML = JSON.stringify(report, null, '  ');
 
-  await encoder.getDownloadUrl(report, 1000).then(
+  await getDownloadUrl(MFP_URL, report, 1000).then(
     (url) => {
       resultEl.innerHTML = url;
       document.location = url;

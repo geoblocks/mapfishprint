@@ -24,9 +24,6 @@
     "start": "npm run prepare && python3 -m http.server --directory demo 12345",
     "doc": "typedoc --name 'Mapfish Print geoblock' --includeVersion --emit docs --excludeExternals --entryPointStrategy expand ./src"
   },
-  "dependencies": {
-    "@babel/parser": "^7.23.9"
-  },
   "peerDependencies": {
     "ol": "6 || 7 || 8"
   },

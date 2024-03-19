@@ -100,8 +100,6 @@ export type UniformInternalDescription = {
  *     gl_FragColor = texture2D(u_image, v_texCoord) * u_opacity;
  *   }
  *   ```
- *
- * @api
  */
 declare class WebGLPostProcessingPass {
     /**
@@ -113,6 +111,7 @@ declare class WebGLPostProcessingPass {
     renderTargetTexture_: WebGLTexture | null;
     renderTargetTextureSize_: number[] | null;
     frameBuffer_: WebGLFramebuffer | null;
+    depthBuffer_: WebGLRenderbuffer | null;
     renderTargetProgram_: WebGLProgram | null;
     renderTargetVerticesBuffer_: WebGLBuffer | null;
     renderTargetAttribLocation_: number;
@@ -128,7 +127,6 @@ declare class WebGLPostProcessingPass {
     /**
      * Get the WebGL rendering context
      * @return {WebGLRenderingContext} The rendering context.
-     * @api
      */
     getGL(): WebGLRenderingContext;
     /**
@@ -136,7 +134,6 @@ declare class WebGLPostProcessingPass {
      * right size and bind it as a render target for the next draw calls.
      * The last step to be initialized will be the one where the primitives are rendered.
      * @param {import("../Map.js").FrameState} frameState current frame state
-     * @api
      */
     init(frameState: import("../Map.js").FrameState): void;
     /**
@@ -145,14 +142,16 @@ declare class WebGLPostProcessingPass {
      * @param {WebGLPostProcessingPass} [nextPass] Next pass, optional
      * @param {function(WebGLRenderingContext, import("../Map.js").FrameState):void} [preCompose] Called before composing.
      * @param {function(WebGLRenderingContext, import("../Map.js").FrameState):void} [postCompose] Called before composing.
-     * @api
      */
     apply(frameState: import("../Map.js").FrameState, nextPass?: WebGLPostProcessingPass | undefined, preCompose?: ((arg0: WebGLRenderingContext, arg1: import("../Map.js").FrameState) => void) | undefined, postCompose?: ((arg0: WebGLRenderingContext, arg1: import("../Map.js").FrameState) => void) | undefined): void;
     /**
      * @return {WebGLFramebuffer} Frame buffer
-     * @api
      */
     getFrameBuffer(): WebGLFramebuffer;
+    /**
+     * @return {WebGLRenderbuffer} Depth buffer
+     */
+    getDepthBuffer(): WebGLRenderbuffer;
     /**
      * Sets the custom uniforms based on what was given in the constructor.
      * @param {import("../Map.js").FrameState} frameState Frame state.

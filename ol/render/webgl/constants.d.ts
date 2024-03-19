@@ -1,8 +1,8 @@
 export type WebGLWorkerMessageType = string;
 export namespace WebGLWorkerMessageType {
-    const GENERATE_POLYGON_BUFFERS: string;
-    const GENERATE_POINT_BUFFERS: string;
-    const GENERATE_LINE_STRING_BUFFERS: string;
+    let GENERATE_POLYGON_BUFFERS: string;
+    let GENERATE_POINT_BUFFERS: string;
+    let GENERATE_LINE_STRING_BUFFERS: string;
 }
 /**
  * This message will trigger the generation of a vertex and an index buffer based on the given render instructions.
@@ -20,13 +20,13 @@ export type WebGLWorkerGenerateBuffersMessage = {
      */
     type: WebGLWorkerMessageType;
     /**
-     * Polygon render instructions raw binary buffer.
+     * render instructions raw binary buffer.
      */
     renderInstructions: ArrayBuffer;
     /**
-     * Amount of custom attributes count in the polygon render instructions.
+     * Amount of hit detection + custom attributes count in the render instructions.
      */
-    customAttributesCount?: number | undefined;
+    customAttributesSize?: number | undefined;
     /**
      * Vertices array raw binary buffer (sent by the worker).
      */

@@ -20,6 +20,14 @@ export function createDefaultStyle(feature: import("../Feature.js").FeatureLike,
 export function createEditingStyle(): any;
 export default Style;
 /**
+ * Defines how symbols and text are decluttered on layers ith `declutter` set to `true`
+ * * **declutter**: Overlapping symbols and text are decluttered.
+ * * **obstacle**: Symbols and text are rendered, but serve as obstacle for subsequent attempts
+ *   to place a symbol or text at the same location.
+ * * **none**: No decluttering is done.
+ */
+export type DeclutterMode = "declutter" | "obstacle" | "none";
+/**
  * A function that takes an {@link module :ol/Feature~Feature} and a `{number}`
  * representing the view's resolution. The function should return a
  * {@link module :ol/style/Style~Style} or an array of them. This way e.g. a
@@ -42,7 +50,7 @@ export type GeometryFunction = (arg0: import("../Feature.js").FeatureLike) => (i
  * 1. The pixel coordinates of the geometry in GeoJSON notation.
  * 2. The {@link module :ol/render~State} of the layer renderer.
  */
-export type RenderFunction = (arg0: (import("../coordinate.js").Coordinate | Array<import("../coordinate.js").Coordinate> | Array<Array<import("../coordinate.js").Coordinate>>), arg1: import("../render.js").State) => void;
+export type RenderFunction = (arg0: (import("../coordinate.js").Coordinate | Array<import("../coordinate.js").Coordinate> | Array<Array<import("../coordinate.js").Coordinate>> | Array<Array<Array<import("../coordinate.js").Coordinate>>>), arg1: import("../render.js").State) => void;
 export type Options = {
     /**
      * Feature property or geometry
@@ -81,6 +89,15 @@ export type Options = {
     zIndex?: number | undefined;
 };
 /**
+ * Defines how symbols and text are decluttered on layers ith `declutter` set to `true`
+ * * **declutter**: Overlapping symbols and text are decluttered.
+ * * **obstacle**: Symbols and text are rendered, but serve as obstacle for subsequent attempts
+ *   to place a symbol or text at the same location.
+ * * **none**: No decluttering is done.
+ *
+ * @typedef {"declutter"|"obstacle"|"none"} DeclutterMode
+ */
+/**
  * A function that takes an {@link module:ol/Feature~Feature} and a `{number}`
  * representing the view's resolution. The function should return a
  * {@link module:ol/style/Style~Style} or an array of them. This way e.g. a
@@ -106,7 +123,7 @@ export type Options = {
  * 1. The pixel coordinates of the geometry in GeoJSON notation.
  * 2. The {@link module:ol/render~State} of the layer renderer.
  *
- * @typedef {function((import("../coordinate.js").Coordinate|Array<import("../coordinate.js").Coordinate>|Array<Array<import("../coordinate.js").Coordinate>>),import("../render.js").State): void} RenderFunction
+ * @typedef {function((import("../coordinate.js").Coordinate|Array<import("../coordinate.js").Coordinate>|Array<Array<import("../coordinate.js").Coordinate>>|Array<Array<Array<import("../coordinate.js").Coordinate>>>),import("../render.js").State): void} RenderFunction
  */
 /**
  * @typedef {Object} Options
@@ -224,7 +241,7 @@ declare class Style {
     constructor(options?: Options | undefined);
     /**
      * @private
-     * @type {string|import("../geom/Geometry.js").default|GeometryFunction}
+     * @type {string|import("../geom/Geometry.js").default|GeometryFunction|null}
      */
     private geometry_;
     /**
@@ -234,12 +251,12 @@ declare class Style {
     private geometryFunction_;
     /**
      * @private
-     * @type {import("./Fill.js").default}
+     * @type {import("./Fill.js").default|null}
      */
     private fill_;
     /**
      * @private
-     * @type {import("./Image.js").default}
+     * @type {import("./Image.js").default|null}
      */
     private image_;
     /**
@@ -254,12 +271,12 @@ declare class Style {
     private hitDetectionRenderer_;
     /**
      * @private
-     * @type {import("./Stroke.js").default}
+     * @type {import("./Stroke.js").default|null}
      */
     private stroke_;
     /**
      * @private
-     * @type {import("./Text.js").default}
+     * @type {import("./Text.js").default|null}
      */
     private text_;
     /**
@@ -303,12 +320,12 @@ declare class Style {
     getHitDetectionRenderer(): RenderFunction | null;
     /**
      * Get the geometry to be rendered.
-     * @return {string|import("../geom/Geometry.js").default|GeometryFunction}
+     * @return {string|import("../geom/Geometry.js").default|GeometryFunction|null}
      * Feature property or geometry or function that returns the geometry that will
      * be rendered with this style.
      * @api
      */
-    getGeometry(): string | import("../geom/Geometry.js").default | GeometryFunction;
+    getGeometry(): string | import("../geom/Geometry.js").default | GeometryFunction | null;
     /**
      * Get the function used to generate a geometry for rendering.
      * @return {!GeometryFunction} Function that is called with a feature
@@ -318,22 +335,22 @@ declare class Style {
     getGeometryFunction(): GeometryFunction;
     /**
      * Get the fill style.
-     * @return {import("./Fill.js").default} Fill style.
+     * @return {import("./Fill.js").default|null} Fill style.
      * @api
      */
-    getFill(): import("./Fill.js").default;
+    getFill(): import("./Fill.js").default | null;
     /**
      * Set the fill style.
-     * @param {import("./Fill.js").default} fill Fill style.
+     * @param {import("./Fill.js").default|null} fill Fill style.
      * @api
      */
-    setFill(fill: import("./Fill.js").default): void;
+    setFill(fill: import("./Fill.js").default | null): void;
     /**
      * Get the image style.
-     * @return {import("./Image.js").default} Image style.
+     * @return {import("./Image.js").default|null} Image style.
      * @api
      */
-    getImage(): import("./Image.js").default;
+    getImage(): import("./Image.js").default | null;
     /**
      * Set the image style.
      * @param {import("./Image.js").default} image Image style.
@@ -342,22 +359,22 @@ declare class Style {
     setImage(image: import("./Image.js").default): void;
     /**
      * Get the stroke style.
-     * @return {import("./Stroke.js").default} Stroke style.
+     * @return {import("./Stroke.js").default|null} Stroke style.
      * @api
      */
-    getStroke(): import("./Stroke.js").default;
+    getStroke(): import("./Stroke.js").default | null;
     /**
      * Set the stroke style.
-     * @param {import("./Stroke.js").default} stroke Stroke style.
+     * @param {import("./Stroke.js").default|null} stroke Stroke style.
      * @api
      */
-    setStroke(stroke: import("./Stroke.js").default): void;
+    setStroke(stroke: import("./Stroke.js").default | null): void;
     /**
      * Get the text style.
-     * @return {import("./Text.js").default} Text style.
+     * @return {import("./Text.js").default|null} Text style.
      * @api
      */
-    getText(): import("./Text.js").default;
+    getText(): import("./Text.js").default | null;
     /**
      * Set the text style.
      * @param {import("./Text.js").default} text Text style.
@@ -387,6 +404,6 @@ declare class Style {
      */
     setZIndex(zIndex: number | undefined): void;
 }
-import Fill from "./Fill.js";
-import Stroke from "./Stroke.js";
+import Fill from './Fill.js';
+import Stroke from './Stroke.js';
 //# sourceMappingURL=Style.d.ts.map

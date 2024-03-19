@@ -63,7 +63,7 @@ export type Options = {
      */
     wrapX?: boolean | undefined;
     /**
-     * Transition time when fading in new tiles (in miliseconds).
+     * Transition time when fading in new tiles (in milliseconds).
      */
     transition?: number | undefined;
     /**
@@ -101,7 +101,7 @@ export type Options = {
  * @property {boolean} [opaque=false] Whether the layer is opaque.
  * @property {import("./Source.js").State} [state] The source state.
  * @property {boolean} [wrapX=false] Render tiles beyond the antimeridian.
- * @property {number} [transition] Transition time when fading in new tiles (in miliseconds).
+ * @property {number} [transition] Transition time when fading in new tiles (in milliseconds).
  * @property {number} [bandCount=4] Number of bands represented in the data.
  * @property {boolean} [interpolate=false] Use interpolated values when resampling.  By default,
  * the nearest neighbor is used when resampling.
@@ -213,6 +213,6 @@ declare class DataTileSource extends TileSource {
      */
     setTileGridForProjection(projection: import("../proj.js").ProjectionLike, tilegrid: import("../tilegrid/TileGrid.js").default): void;
 }
-import TileSource from "./Tile.js";
-import DataTile from "../DataTile.js";
+import TileSource from './Tile.js';
+import DataTile from '../DataTile.js';
 //# sourceMappingURL=DataTile.d.ts.map

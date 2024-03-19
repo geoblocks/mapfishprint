@@ -212,7 +212,8 @@ export function transformExtent(extent: import("./extent.js").Extent, source: Pr
 export function transformWithProjections(point: import("./coordinate.js").Coordinate, sourceProjection: Projection, destinationProjection: Projection): import("./coordinate.js").Coordinate;
 /**
  * Set the projection for coordinates supplied from and returned by API methods.
- * This includes all API methods except for those interacting with tile grids.
+ * This includes all API methods except for those interacting with tile grids,
+ * plus {@link import("./Map.js").FrameState} and {@link import("./View.js").State}.
  * @param {ProjectionLike} projection The user projection.
  * @api
  */
@@ -224,15 +225,14 @@ export function setUserProjection(projection: ProjectionLike): void;
 export function clearUserProjection(): void;
 /**
  * Get the projection for coordinates supplied from and returned by API methods.
- * Note that this method is not yet a part of the stable API.  Support for user
- * projections is not yet complete and should be considered experimental.
  * @return {Projection|null} The user projection (or null if not set).
  * @api
  */
 export function getUserProjection(): Projection | null;
 /**
- * Use geographic coordinates (WGS-84 datum) in API methods.  This includes all API
- * methods except for those interacting with tile grids.
+ * Use geographic coordinates (WGS-84 datum) in API methods.
+ * This includes all API methods except for those interacting with tile grids,
+ * plus {@link import("./Map.js").FrameState} and {@link import("./View.js").State}.
  * @api
  */
 export function useGeographic(): void;
@@ -293,8 +293,8 @@ export function fromUserResolution(resolution: number, destProjection: Projectio
  * clamped to the validity range.
  * @param {Projection} sourceProj Source projection.
  * @param {Projection} destProj Destination projection.
- * @param {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} transform Transform function (source to destiation).
- * @return {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} Safe transform function (source to destiation).
+ * @param {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} transform Transform function (source to destination).
+ * @return {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} Safe transform function (source to destination).
  */
 export function createSafeCoordinateTransform(sourceProj: Projection, destProj: Projection, transform: (arg0: import("./coordinate.js").Coordinate) => import("./coordinate.js").Coordinate): (arg0: import("./coordinate.js").Coordinate) => import("./coordinate.js").Coordinate;
 /**
@@ -315,7 +315,7 @@ export type ProjectionLike = Projection | string | undefined;
  * returns the output array.
  */
 export type TransformFunction = (arg0: Array<number>, arg1: Array<number> | undefined, arg2: number | undefined) => Array<number>;
-import Projection from "./proj/Projection.js";
-import { METERS_PER_UNIT } from "./proj/Units.js";
+import Projection from './proj/Projection.js';
+import { METERS_PER_UNIT } from './proj/Units.js';
 export { METERS_PER_UNIT, Projection };
 //# sourceMappingURL=proj.d.ts.map

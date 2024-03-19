@@ -1,9 +1,9 @@
 export default WebGLPointsLayer;
-export type Options<VectorSourceType extends import("../source/Vector.js").default<import("../geom/Point.js").default>> = {
+export type Options<VectorSourceType extends import("../source/Vector.js").default<import("../Feature.js").default<import("../geom/Geometry.js").default>>> = {
     /**
      * Literal style to apply to the layer features.
      */
-    style: import('../style/literal.js').LiteralStyle;
+    style: import('../style/webgl.js').WebGLStyle;
     /**
      * A CSS class name to set to the layer element.
      */
@@ -65,9 +65,9 @@ export type Options<VectorSourceType extends import("../source/Vector.js").defau
     } | undefined;
 };
 /**
- * @template {import("../source/Vector.js").default<import("../geom/Point.js").default>} VectorSourceType
+ * @template {import("../source/Vector.js").default} VectorSourceType
  * @typedef {Object} Options
- * @property {import('../style/literal.js').LiteralStyle} style Literal style to apply to the layer features.
+ * @property {import('../style/webgl.js').WebGLStyle} style Literal style to apply to the layer features.
  * @property {string} [className='ol-layer'] A CSS class name to set to the layer element.
  * @property {number} [opacity=1] Opacity (0, 1).
  * @property {boolean} [visible=true] Visibility.
@@ -98,23 +98,18 @@ export type Options<VectorSourceType extends import("../source/Vector.js").defau
  * Here are a few samples of literal style objects:
  * ```js
  * const style = {
- *   symbol: {
- *     symbolType: 'circle',
- *     size: 8,
- *     color: '#33AAFF',
- *     opacity: 0.9
- *   }
+ *   'circle-radius': 8,
+ *   'circle-fill-color': '#33AAFF',
+ *   'circle-opacity': 0.9
  * }
  * ```
  *
  * ```js
  * const style = {
- *   symbol: {
- *     symbolType: 'image',
- *     offset: [0, 12],
- *     size: [4, 8],
- *     src: '../static/exclamation-mark.png'
- *   }
+ *   'icon-src': '../static/exclamation-mark.png',
+ *   'icon-offset': [0, 12],
+ *   'icon-width': 4,
+ *   'icon-height': 8
  * }
  * ```
  *
@@ -125,22 +120,22 @@ export type Options<VectorSourceType extends import("../source/Vector.js").defau
  * property on the layer object; for example, setting `title: 'My Title'` in the
  * options means that `title` is observable, and has get/set accessors.
  *
- * @template {import("../source/Vector.js").default<import("../geom/Point.js").default>} VectorSourceType
+ * @template {import("../source/Vector.js").default} VectorSourceType
  * @extends {Layer<VectorSourceType, WebGLPointsLayerRenderer>}
  * @fires import("../render/Event.js").RenderEvent
  */
-declare class WebGLPointsLayer<VectorSourceType extends import("../source/Vector.js").default<import("../geom/Point.js").default>> extends Layer<VectorSourceType, WebGLPointsLayerRenderer> {
+declare class WebGLPointsLayer<VectorSourceType extends import("../source/Vector.js").default<import("../Feature.js").default<import("../geom/Geometry.js").default>>> extends Layer<VectorSourceType, WebGLPointsLayerRenderer> {
     /**
      * @param {Options<VectorSourceType>} options Options.
      */
     constructor(options: Options<VectorSourceType>);
     /**
      * @private
-     * @type {import('../webgl/ShaderBuilder.js').StyleParseResult}
+     * @type {import('../webgl/styleparser.js').StyleParseResult}
      */
     private parseResult_;
     /**
-     * @type {Object<string, (string|number)>}
+     * @type {Object<string, (string|number|Array<number>|boolean)>}
      * @private
      */
     private styleVariables_;
@@ -158,6 +153,6 @@ declare class WebGLPointsLayer<VectorSourceType extends import("../source/Vector
         [x: string]: number;
     }): void;
 }
-import WebGLPointsLayerRenderer from "../renderer/webgl/PointsLayer.js";
-import Layer from "./Layer.js";
+import WebGLPointsLayerRenderer from '../renderer/webgl/PointsLayer.js';
+import Layer from './Layer.js';
 //# sourceMappingURL=WebGLPoints.d.ts.map

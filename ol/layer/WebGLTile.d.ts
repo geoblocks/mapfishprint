@@ -7,7 +7,7 @@ export type Style = {
     /**
      * Style variables.  Each variable must hold a number or string.  These
      * variables can be used in the `color`, `brightness`, `contrast`, `exposure`, `saturation` and `gamma`
-     * {@link import ("../style/expressions.js").ExpressionValue expressions}, using the `['var', 'varName']` operator.
+     * {@link import ("../expr/expression.js").ExpressionValue expressions}, using the `['var', 'varName']` operator.
      * To update style variables, use the {@link import ("./WebGLTile.js").default#updateStyleVariables} method.
      */
     variables?: {
@@ -16,32 +16,32 @@ export type Style = {
     /**
      * An expression applied to color values.
      */
-    color?: import("../style/expressions.js").ExpressionValue | undefined;
+    color?: import("../expr/expression.js").ExpressionValue | undefined;
     /**
      * Value used to decrease or increase
      * the layer brightness.  Values range from -1 to 1.
      */
-    brightness?: import("../style/expressions.js").ExpressionValue | undefined;
+    brightness?: import("../expr/expression.js").ExpressionValue | undefined;
     /**
      * Value used to decrease or increase
      * the layer contrast.  Values range from -1 to 1.
      */
-    contrast?: import("../style/expressions.js").ExpressionValue | undefined;
+    contrast?: import("../expr/expression.js").ExpressionValue | undefined;
     /**
      * Value used to decrease or increase
      * the layer exposure.  Values range from -1 to 1.
      */
-    exposure?: import("../style/expressions.js").ExpressionValue | undefined;
+    exposure?: import("../expr/expression.js").ExpressionValue | undefined;
     /**
      * Value used to decrease or increase
      * the layer saturation.  Values range from -1 to 1.
      */
-    saturation?: import("../style/expressions.js").ExpressionValue | undefined;
+    saturation?: import("../expr/expression.js").ExpressionValue | undefined;
     /**
      * Apply a gamma correction to the layer.
      * Values range from 0 to infinity.
      */
-    gamma?: import("../style/expressions.js").ExpressionValue | undefined;
+    gamma?: import("../expr/expression.js").ExpressionValue | undefined;
 };
 export type Options = {
     /**
@@ -125,6 +125,12 @@ export type Options = {
      * two zoom levels worth of tiles.
      */
     cacheSize?: number | undefined;
+    /**
+     * Arbitrary observable properties. Can be accessed with `#get()` and `#set()`.
+     */
+    properties?: {
+        [x: string]: any;
+    } | undefined;
 };
 export type ParsedStyle = {
     /**
@@ -220,6 +226,13 @@ declare class WebGLTileLayer extends BaseTileLayer<SourceType, WebGLTileLayerRen
      */
     renderSources(frameState: import("../Map").FrameState, sources: Array<SourceType>): HTMLElement;
     /**
+     * @param {?import("../Map.js").FrameState} frameState Frame state.
+     * @param {HTMLElement} target Target which the renderer may (but need not) use
+     * for rendering its content.
+     * @return {HTMLElement} The rendered element.
+     */
+    render(frameState: import("../Map.js").FrameState | null, target: HTMLElement): HTMLElement;
+    /**
      * Update the layer style.  The `updateStyleVariables` function is a more efficient
      * way to update layer rendering.  In cases where the whole style needs to be updated,
      * this method may be called instead.  Note that calling this method will also replace
@@ -237,6 +250,6 @@ declare class WebGLTileLayer extends BaseTileLayer<SourceType, WebGLTileLayerRen
         [x: string]: number;
     }): void;
 }
-import WebGLTileLayerRenderer from "../renderer/webgl/TileLayer.js";
-import BaseTileLayer from "./BaseTile.js";
+import WebGLTileLayerRenderer from '../renderer/webgl/TileLayer.js';
+import BaseTileLayer from './BaseTile.js';
 //# sourceMappingURL=WebGLTile.d.ts.map

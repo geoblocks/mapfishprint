@@ -31,14 +31,10 @@ declare class IGC extends TextFeature {
      */
     constructor(options?: Options | undefined);
     /**
-     * @type {import("../proj/Projection.js").default}
-     */
-    dataProjection: import("../proj/Projection.js").default;
-    /**
      * @private
      * @type {IGCZ}
      */
     private altitudeMode_;
 }
-import TextFeature from "./TextFeature.js";
+import TextFeature from './TextFeature.js';
 //# sourceMappingURL=IGC.d.ts.map

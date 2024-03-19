@@ -1,4 +1,6 @@
 export default MixedGeometryBatch;
+export type Feature = import("../../Feature.js").default;
+export type GeometryType = import("../../geom/Geometry.js").Type;
 /**
  * Object that holds a reference to a feature as well as the raw coordinates of its various geometries
  */
@@ -6,7 +8,7 @@ export type GeometryBatchItem = {
     /**
      * Feature
      */
-    feature: import("../../Feature").default;
+    feature: Feature | RenderFeature;
     /**
      * Array of flat coordinates arrays, one for each geometry related to the feature
      */
@@ -23,6 +25,10 @@ export type GeometryBatchItem = {
      * Array of vertices counts in each ring for each geometry; only defined for polygons batches
      */
     ringsVerticesCounts?: number[][] | undefined;
+    /**
+     * The reference in the global batch (used for hit detection)
+     */
+    ref?: number | undefined;
 };
 export type GeometryBatch = PointGeometryBatch | LineStringGeometryBatch | PolygonGeometryBatch;
 /**
@@ -40,31 +46,6 @@ export type PolygonGeometryBatch = {
      * Amount of geometries in the batch.
      */
     geometriesCount: number;
-    /**
-     * Render instructions for polygons are structured like so:
-     * [ numberOfRings, numberOfVerticesInRing0, ..., numberOfVerticesInRingN, x0, y0, customAttr0, ..., xN, yN, customAttrN, numberOfRings,... ]
-     */
-    renderInstructions: Float32Array;
-    /**
-     * Vertices WebGL buffer
-     */
-    verticesBuffer: WebGLArrayBuffer;
-    /**
-     * Indices WebGL buffer
-     */
-    indicesBuffer: WebGLArrayBuffer;
-    /**
-     * Converts world space coordinates to screen space; applies to the rendering instructions
-     */
-    renderInstructionsTransform: import("../../transform.js").Transform;
-    /**
-     * Converts world space coordinates to screen space; applies to the webgl vertices buffer
-     */
-    verticesBufferTransform: import("../../transform.js").Transform;
-    /**
-     * Screen space to world space; applies to the webgl vertices buffer
-     */
-    invertVerticesBufferTransform: import("../../transform.js").Transform;
     /**
      * Amount of vertices from geometries in the batch.
      */
@@ -90,31 +71,6 @@ export type LineStringGeometryBatch = {
      */
     geometriesCount: number;
     /**
-     * Render instructions for polygons are structured like so:
-     * [ numberOfRings, numberOfVerticesInRing0, ..., numberOfVerticesInRingN, x0, y0, customAttr0, ..., xN, yN, customAttrN, numberOfRings,... ]
-     */
-    renderInstructions: Float32Array;
-    /**
-     * Vertices WebGL buffer
-     */
-    verticesBuffer: WebGLArrayBuffer;
-    /**
-     * Indices WebGL buffer
-     */
-    indicesBuffer: WebGLArrayBuffer;
-    /**
-     * Converts world space coordinates to screen space; applies to the rendering instructions
-     */
-    renderInstructionsTransform: import("../../transform.js").Transform;
-    /**
-     * Converts world space coordinates to screen space; applies to the webgl vertices buffer
-     */
-    verticesBufferTransform: import("../../transform.js").Transform;
-    /**
-     * Screen space to world space; applies to the webgl vertices buffer
-     */
-    invertVerticesBufferTransform: import("../../transform.js").Transform;
-    /**
      * Amount of vertices from geometries in the batch.
      */
     verticesCount: number;
@@ -134,39 +90,21 @@ export type PointGeometryBatch = {
      * Amount of geometries in the batch.
      */
     geometriesCount: number;
-    /**
-     * Render instructions for polygons are structured like so:
-     * [ numberOfRings, numberOfVerticesInRing0, ..., numberOfVerticesInRingN, x0, y0, customAttr0, ..., xN, yN, customAttrN, numberOfRings,... ]
-     */
-    renderInstructions: Float32Array;
-    /**
-     * Vertices WebGL buffer
-     */
-    verticesBuffer: WebGLArrayBuffer;
-    /**
-     * Indices WebGL buffer
-     */
-    indicesBuffer: WebGLArrayBuffer;
-    /**
-     * Converts world space coordinates to screen space; applies to the rendering instructions
-     */
-    renderInstructionsTransform: import("../../transform.js").Transform;
-    /**
-     * Converts world space coordinates to screen space; applies to the webgl vertices buffer
-     */
-    verticesBufferTransform: import("../../transform.js").Transform;
-    /**
-     * Screen space to world space; applies to the webgl vertices buffer
-     */
-    invertVerticesBufferTransform: import("../../transform.js").Transform;
 };
 /**
+ * @typedef {import("../../Feature.js").default} Feature
+ */
+/**
+ * @typedef {import("../../geom/Geometry.js").Type} GeometryType
+ */
+/**
  * @typedef {Object} GeometryBatchItem Object that holds a reference to a feature as well as the raw coordinates of its various geometries
- * @property {import("../../Feature").default} feature Feature
+ * @property {Feature|RenderFeature} feature Feature
  * @property {Array<Array<number>>} flatCoordss Array of flat coordinates arrays, one for each geometry related to the feature
  * @property {number} [verticesCount] Only defined for linestring and polygon batches
  * @property {number} [ringsCount] Only defined for polygon batches
  * @property {Array<Array<number>>} [ringsVerticesCounts] Array of vertices counts in each ring for each geometry; only defined for polygons batches
+ * @property {number} [ref] The reference in the global batch (used for hit detection)
  */
 /**
  * @typedef {PointGeometryBatch|LineStringGeometryBatch|PolygonGeometryBatch} GeometryBatch
@@ -176,13 +114,6 @@ export type PointGeometryBatch = {
  * @property {Object<string, GeometryBatchItem>} entries Dictionary of all entries in the batch with associated computed values.
  * One entry corresponds to one feature. Key is feature uid.
  * @property {number} geometriesCount Amount of geometries in the batch.
- * @property {Float32Array} renderInstructions Render instructions for polygons are structured like so:
- * [ numberOfRings, numberOfVerticesInRing0, ..., numberOfVerticesInRingN, x0, y0, customAttr0, ..., xN, yN, customAttrN, numberOfRings,... ]
- * @property {WebGLArrayBuffer} verticesBuffer Vertices WebGL buffer
- * @property {WebGLArrayBuffer} indicesBuffer Indices WebGL buffer
- * @property {import("../../transform.js").Transform} renderInstructionsTransform Converts world space coordinates to screen space; applies to the rendering instructions
- * @property {import("../../transform.js").Transform} verticesBufferTransform Converts world space coordinates to screen space; applies to the webgl vertices buffer
- * @property {import("../../transform.js").Transform} invertVerticesBufferTransform Screen space to world space; applies to the webgl vertices buffer
  * @property {number} verticesCount Amount of vertices from geometries in the batch.
  * @property {number} ringsCount How many outer and inner rings in this batch.
  */
@@ -191,13 +122,6 @@ export type PointGeometryBatch = {
  * @property {Object<string, GeometryBatchItem>} entries Dictionary of all entries in the batch with associated computed values.
  * One entry corresponds to one feature. Key is feature uid.
  * @property {number} geometriesCount Amount of geometries in the batch.
- * @property {Float32Array} renderInstructions Render instructions for polygons are structured like so:
- * [ numberOfRings, numberOfVerticesInRing0, ..., numberOfVerticesInRingN, x0, y0, customAttr0, ..., xN, yN, customAttrN, numberOfRings,... ]
- * @property {WebGLArrayBuffer} verticesBuffer Vertices WebGL buffer
- * @property {WebGLArrayBuffer} indicesBuffer Indices WebGL buffer
- * @property {import("../../transform.js").Transform} renderInstructionsTransform Converts world space coordinates to screen space; applies to the rendering instructions
- * @property {import("../../transform.js").Transform} verticesBufferTransform Converts world space coordinates to screen space; applies to the webgl vertices buffer
- * @property {import("../../transform.js").Transform} invertVerticesBufferTransform Screen space to world space; applies to the webgl vertices buffer
  * @property {number} verticesCount Amount of vertices from geometries in the batch.
  */
 /**
@@ -205,13 +129,6 @@ export type PointGeometryBatch = {
  * @property {Object<string, GeometryBatchItem>} entries Dictionary of all entries in the batch with associated computed values.
  * One entry corresponds to one feature. Key is feature uid.
  * @property {number} geometriesCount Amount of geometries in the batch.
- * @property {Float32Array} renderInstructions Render instructions for polygons are structured like so:
- * [ numberOfRings, numberOfVerticesInRing0, ..., numberOfVerticesInRingN, x0, y0, customAttr0, ..., xN, yN, customAttrN, numberOfRings,... ]
- * @property {WebGLArrayBuffer} verticesBuffer Vertices WebGL buffer
- * @property {WebGLArrayBuffer} indicesBuffer Indices WebGL buffer
- * @property {import("../../transform.js").Transform} renderInstructionsTransform Converts world space coordinates to screen space; applies to the rendering instructions
- * @property {import("../../transform.js").Transform} verticesBufferTransform Converts world space coordinates to screen space; applies to the webgl vertices buffer
- * @property {import("../../transform.js").Transform} invertVerticesBufferTransform Screen space to world space; applies to the webgl vertices buffer
  */
 /**
  * @classdesc This class is used to group several geometries of various types together for faster rendering.
@@ -219,7 +136,7 @@ export type PointGeometryBatch = {
  * from the batch, these inner batches are modified accordingly in order to keep them up-to-date.
  *
  * A feature can be present in several inner batches, for example a polygon geometry will be present in the polygon batch
- * and its linar rings will be present in the line batch. Multi geometries are also broken down into individual geometries
+ * and its linear rings will be present in the line batch. Multi geometries are also broken down into individual geometries
  * and added to the corresponding batches in a recursive manner.
  *
  * Corresponding {@link module:ol/render/webgl/BatchRenderer} instances are then used to generate the render instructions
@@ -233,6 +150,26 @@ export type PointGeometryBatch = {
  * the WebGL buffers.
  */
 declare class MixedGeometryBatch {
+    globalCounter_: number;
+    /**
+     * Refs are used as keys for hit detection.
+     * @type {Map<number, Feature|RenderFeature>}
+     * @private
+     */
+    private refToFeature_;
+    /**
+     * Features are split in "entries", which are individual geometries. We use the following map to share a single ref for all those entries.
+     * @type {Map<string, number>}
+     * @private
+     */
+    private uidToRef_;
+    /**
+     * The precision in WebGL shaders is limited.
+     * To keep the refs as small as possible we maintain an array of returned references.
+     * @type {Array<number>}
+     * @private
+     */
+    private freeGlobalRef_;
     /**
      * @type {PolygonGeometryBatch}
      */
@@ -246,61 +183,78 @@ declare class MixedGeometryBatch {
      */
     lineStringBatch: LineStringGeometryBatch;
     /**
-     * @param {Array<import("../../Feature").default>} features Array of features to add to the batch
+     * @param {Array<Feature|RenderFeature>} features Array of features to add to the batch
+     * @param {import("../../proj.js").TransformFunction} [projectionTransform] Projection transform.
      */
-    addFeatures(features: Array<import("../../Feature").default>): void;
+    addFeatures(features: Array<Feature | RenderFeature>, projectionTransform?: import("../../proj.js").TransformFunction | undefined): void;
     /**
-     * @param {import("../../Feature").default} feature Feature to add to the batch
+     * @param {Feature|RenderFeature} feature Feature to add to the batch
+     * @param {import("../../proj.js").TransformFunction} [projectionTransform] Projection transform.
      */
-    addFeature(feature: import("../../Feature").default): void;
+    addFeature(feature: Feature | RenderFeature, projectionTransform?: import("../../proj.js").TransformFunction | undefined): void;
     /**
-     * @param {import("../../Feature").default} feature Feature
-     * @return {GeometryBatchItem} Batch item added (or existing one)
-     * @private
-     */
-    private addFeatureEntryInPointBatch_;
-    /**
-     * @param {import("../../Feature").default} feature Feature
-     * @return {GeometryBatchItem} Batch item added (or existing one)
-     * @private
-     */
-    private addFeatureEntryInLineStringBatch_;
-    /**
-     * @param {import("../../Feature").default} feature Feature
-     * @return {GeometryBatchItem} Batch item added (or existing one)
-     * @private
-     */
-    private addFeatureEntryInPolygonBatch_;
-    /**
-     * @param {import("../../Feature").default} feature Feature
+     * @param {Feature|RenderFeature} feature Feature
+     * @return {GeometryBatchItem|void} the cleared entry
      * @private
      */
     private clearFeatureEntryInPointBatch_;
     /**
-     * @param {import("../../Feature").default} feature Feature
+     * @param {Feature|RenderFeature} feature Feature
+     * @return {GeometryBatchItem|void} the cleared entry
      * @private
      */
     private clearFeatureEntryInLineStringBatch_;
     /**
-     * @param {import("../../Feature").default} feature Feature
+     * @param {Feature|RenderFeature} feature Feature
+     * @return {GeometryBatchItem|void} the cleared entry
      * @private
      */
     private clearFeatureEntryInPolygonBatch_;
     /**
-     * @param {import("../../geom").Geometry} geometry Geometry
-     * @param {import("../../Feature").default} feature Feature
+     * @param {import("../../geom.js").Geometry|RenderFeature} geometry Geometry
+     * @param {Feature|RenderFeature} feature Feature
      * @private
      */
     private addGeometry_;
     /**
-     * @param {import("../../Feature").default} feature Feature
+     * @param {GeometryType} type Geometry type
+     * @param {Array<number>} flatCoords Flat coordinates
+     * @param {Array<number> | Array<Array<number>> | null} ends Coordinate ends
+     * @param {Feature|RenderFeature} feature Feature
+     * @param {string} featureUid Feature uid
+     * @param {number} stride Stride
+     * @private
      */
-    changeFeature(feature: import("../../Feature").default): void;
+    private addCoordinates_;
     /**
-     * @param {import("../../Feature").default} feature Feature
+     * @param {string} featureUid Feature uid
+     * @param {GeometryBatchItem} entry The entry to add
+     * @return {GeometryBatchItem} the added entry
+     * @private
      */
-    removeFeature(feature: import("../../Feature").default): void;
+    private addRefToEntry_;
+    /**
+     * Return a ref to the pool of available refs.
+     * @param {number} ref the ref to return
+     * @param {string} featureUid the feature uid
+     * @private
+     */
+    private returnRef_;
+    /**
+     * @param {Feature|RenderFeature} feature Feature
+     */
+    changeFeature(feature: Feature | RenderFeature): void;
+    /**
+     * @param {Feature|RenderFeature} feature Feature
+     */
+    removeFeature(feature: Feature | RenderFeature): void;
     clear(): void;
+    /**
+     * Resolve the feature associated to a ref.
+     * @param {number} ref Hit detected ref
+     * @return {Feature|RenderFeature} feature
+     */
+    getFeatureFromRef(ref: number): Feature | RenderFeature;
 }
-import WebGLArrayBuffer from "../../webgl/Buffer.js";
+import RenderFeature from '../../render/Feature.js';
 //# sourceMappingURL=MixedGeometryBatch.d.ts.map

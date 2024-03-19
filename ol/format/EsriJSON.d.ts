@@ -43,7 +43,7 @@ export type Options = {
  *
  * @api
  */
-declare class EsriJSON extends JSONFeature {
+declare class EsriJSON extends JSONFeature<typeof Feature> {
     /**
      * @param {Options} [options] Options.
      */
@@ -62,6 +62,13 @@ declare class EsriJSON extends JSONFeature {
      * @return {import("../Feature.js").default} Feature.
      */
     protected readFeatureFromObject(object: any, options?: import("./Feature.js").ReadOptions | undefined, idField?: string | undefined): import("../Feature.js").default;
+    /**
+     * @param {Object} object Object.
+     * @param {import("./Feature.js").ReadOptions} [options] Read options.
+     * @protected
+     * @return {Array<Feature>} Features.
+     */
+    protected readFeaturesFromObject(object: any, options?: import("./Feature.js").ReadOptions | undefined): Array<Feature>;
     /**
      * @param {EsriJSONGeometry} object Object.
      * @param {import("./Feature.js").ReadOptions} [options] Read options.
@@ -88,5 +95,6 @@ declare class EsriJSON extends JSONFeature {
      */
     writeFeaturesObject(features: Array<import("../Feature.js").default>, options?: import("./Feature.js").WriteOptions | undefined): EsriJSONFeatureSet;
 }
-import JSONFeature from "./JSONFeature.js";
+import Feature from '../Feature.js';
+import JSONFeature from './JSONFeature.js';
 //# sourceMappingURL=EsriJSON.d.ts.map

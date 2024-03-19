@@ -7,7 +7,6 @@ import ImageTile from '../ImageTile.js';
 import TileGrid from '../tilegrid/TileGrid.js';
 import TileImage from './TileImage.js';
 import TileState from '../TileState.js';
-import {assert} from '../asserts.js';
 import {createCanvasContext2D} from '../dom.js';
 import {createFromTileUrlFunctions, expandUrl} from '../tileurlfunction.js';
 import {getCenter} from '../extent.js';
@@ -34,7 +33,7 @@ export class CustomTile extends ImageTile {
     src,
     crossOrigin,
     tileLoadFunction,
-    options
+    options,
   ) {
     super(tileCoord, state, src, crossOrigin, tileLoadFunction, options);
 
@@ -165,9 +164,8 @@ class Zoomify extends TileImage {
           height >>= 1;
         }
         break;
-      default: // Unknown `tierSizeCalculation` configured
-        assert(false, 53);
-        break;
+      default:
+        throw new Error('Unknown `tierSizeCalculation` configured');
     }
 
     tierSizeInTiles.push([1, 1]);
@@ -179,7 +177,7 @@ class Zoomify extends TileImage {
       resolutions.push(tilePixelRatio << i);
       tileCountUpToTier.push(
         tierSizeInTiles[i - 1][0] * tierSizeInTiles[i - 1][1] +
-          tileCountUpToTier[i - 1]
+          tileCountUpToTier[i - 1],
       );
     }
     resolutions.reverse();
@@ -236,12 +234,12 @@ class Zoomify extends TileImage {
     }
 
     const tileUrlFunction = createFromTileUrlFunctions(
-      urls.map(createFromTemplate)
+      urls.map(createFromTemplate),
     );
 
     const ZoomifyTileClass = CustomTile.bind(
       null,
-      toSize(tileSize * tilePixelRatio)
+      toSize(tileSize * tilePixelRatio),
     );
 
     super({
@@ -269,7 +267,7 @@ class Zoomify extends TileImage {
     // tile url calculation.
     const tileUrl = tileGrid.getTileCoordForCoordAndResolution(
       getCenter(tileGrid.getExtent()),
-      resolutions[resolutions.length - 1]
+      resolutions[resolutions.length - 1],
     );
     const testTileUrl = tileUrlFunction(tileUrl, 1, null);
     const image = new Image();

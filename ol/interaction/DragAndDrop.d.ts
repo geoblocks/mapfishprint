@@ -36,7 +36,7 @@ export type Options = {
      * Format constructors
      * (and/or formats pre-constructed with options).
      */
-    formatConstructors?: (import("../format/Feature.js").default | typeof import("../format/Feature.js").default)[] | undefined;
+    formatConstructors?: (typeof import("../format/Feature.js").default | import("../format/Feature.js").default<typeof import("../Feature.js").default>)[] | undefined;
     /**
      * Optional vector source where features will be added.  If a source is provided
      * all existing features will be removed and new features will be added when
@@ -44,7 +44,7 @@ export type Options = {
      * source without removing the existing features (append only), instead of
      * providing the source option listen for the "addfeatures" event.
      */
-    source?: import("../source/Vector.js").default<import("../geom/Geometry.js").default> | undefined;
+    source?: import("../source/Vector.js").default<import("../Feature.js").default<import("../geom/Geometry.js").default>> | undefined;
     /**
      * Target projection. By default, the map's view's projection is used.
      */
@@ -58,10 +58,10 @@ export type Options = {
  * *
  */
 export type DragAndDropOnSignature<Return> = import("../Observable").OnSignature<import("../Observable").EventTypes, import("../events/Event.js").default, Return> & import("../Observable").OnSignature<import("../ObjectEventType").Types | 'change:active', import("../Object").ObjectEvent, Return> & import("../Observable").OnSignature<'addfeatures', DragAndDropEvent, Return> & import("../Observable").CombinedOnSignature<import("../Observable").EventTypes | import("../ObjectEventType").Types | 'change:active' | 'addfeatures', Return>;
-import Event from "../events/Event.js";
+import Event from '../events/Event.js';
 type DragAndDropEventType = string;
 declare namespace DragAndDropEventType {
-    const ADD_FEATURES: string;
+    let ADD_FEATURES: string;
 }
 /***
  * @template Return
@@ -165,5 +165,5 @@ declare class DragAndDrop extends Interaction {
      */
     handleStop(event: DragEvent): void;
 }
-import Interaction from "./Interaction.js";
+import Interaction from './Interaction.js';
 //# sourceMappingURL=DragAndDrop.d.ts.map

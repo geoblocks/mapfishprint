@@ -69,7 +69,7 @@ declare class Polygon extends SimpleGeometry {
     private flatInteriorPointRevision_;
     /**
      * @private
-     * @type {import("../coordinate.js").Coordinate}
+     * @type {import("../coordinate.js").Coordinate|null}
      */
     private flatInteriorPoint_;
     /**
@@ -89,7 +89,7 @@ declare class Polygon extends SimpleGeometry {
     private orientedRevision_;
     /**
      * @private
-     * @type {Array<number>}
+     * @type {Array<number>|null}
      */
     private orientedFlatCoordinates_;
     /**
@@ -182,7 +182,7 @@ declare class Polygon extends SimpleGeometry {
      */
     setCoordinates(coordinates: Array<Array<import("../coordinate.js").Coordinate>>, layout?: import("./Geometry.js").GeometryLayout | undefined): void;
 }
-import SimpleGeometry from "./SimpleGeometry.js";
-import LinearRing from "./LinearRing.js";
-import Point from "./Point.js";
+import SimpleGeometry from './SimpleGeometry.js';
+import LinearRing from './LinearRing.js';
+import Point from './Point.js';
 //# sourceMappingURL=Polygon.d.ts.map

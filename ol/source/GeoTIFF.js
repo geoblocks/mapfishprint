@@ -133,8 +133,7 @@ function getBoundingBox(image) {
   try {
     return image.getBoundingBox();
   } catch (_) {
-    const fileDirectory = image.fileDirectory;
-    return [0, 0, fileDirectory.ImageWidth, fileDirectory.ImageLength];
+    return [0, 0, image.getWidth(), image.getHeight()];
   }
 }
 
@@ -148,7 +147,7 @@ function getOrigin(image) {
   try {
     return image.getOrigin().slice(0, 2);
   } catch (_) {
-    return [0, image.fileDirectory.ImageLength];
+    return [0, image.getHeight()];
   }
 }
 
@@ -164,9 +163,8 @@ function getResolutions(image, referenceImage) {
     return image.getResolution(referenceImage);
   } catch (_) {
     return [
-      referenceImage.fileDirectory.ImageWidth / image.fileDirectory.ImageWidth,
-      referenceImage.fileDirectory.ImageHeight /
-        image.fileDirectory.ImageHeight,
+      referenceImage.getWidth() / image.getWidth(),
+      referenceImage.getHeight() / image.getHeight(),
     ];
   }
 }
@@ -361,6 +359,8 @@ function getMaxForDataType(array) {
  * If instead you want to work with the raw values in a style expression, set this to `false`.  Setting this option
  * to `false` will make it so any `min` and `max` properties on sources are ignored.
  * @property {boolean} [opaque=false] Whether the layer is opaque.
+ * @property {import("../proj.js").ProjectionLike} [projection] Source projection.  If not provided, the GeoTIFF metadata
+ * will be read for projection information.
  * @property {number} [transition=250] Duration of the opacity transition for rendering.
  * To disable the opacity transition, pass `transition: 0`.
  * @property {boolean} [wrapX=false] Render tiles beyond the tile grid extent.
@@ -384,7 +384,7 @@ class GeoTIFFSource extends DataTile {
     super({
       state: 'loading',
       tileGrid: null,
-      projection: null,
+      projection: options.projection || null,
       opaque: options.opaque,
       transition: options.transition,
       interpolate: options.interpolate !== false,
@@ -471,7 +471,7 @@ class GeoTIFFSource extends DataTile {
     for (let i = 0; i < numSources; ++i) {
       requests[i] = getImagesForSource(
         this.sourceInfo_[i],
-        this.sourceOptions_
+        this.sourceOptions_,
       );
     }
     Promise.all(requests)
@@ -555,7 +555,7 @@ class GeoTIFFSource extends DataTile {
       const imageCount = images.length;
       if (masks.length > 0 && masks.length !== imageCount) {
         throw new Error(
-          `Expected one mask per image found ${masks.length} masks and ${imageCount} images`
+          `Expected one mask per image found ${masks.length} masks and ${imageCount} images`,
         );
       }
 
@@ -636,7 +636,7 @@ class GeoTIFFSource extends DataTile {
           sourceResolutions[sourceResolutions.length - 1];
         this.resolutionFactors_[sourceIndex] = resolutionFactor;
         const scaledSourceResolutions = sourceResolutions.map(
-          (resolution) => (resolution *= resolutionFactor)
+          (resolution) => (resolution *= resolutionFactor),
         );
         const message = `Resolution mismatch for source ${sourceIndex}, got [${scaledSourceResolutions}] but expected [${resolutions}]`;
         assertEqual(
@@ -644,7 +644,7 @@ class GeoTIFFSource extends DataTile {
           scaledSourceResolutions,
           0.02,
           message,
-          this.viewRejector
+          this.viewRejector,
         );
       }
 
@@ -656,7 +656,7 @@ class GeoTIFFSource extends DataTile {
           renderTileSizes,
           0.01,
           `Tile size mismatch for source ${sourceIndex}`,
-          this.viewRejector
+          this.viewRejector,
         );
       }
 
@@ -668,7 +668,7 @@ class GeoTIFFSource extends DataTile {
           sourceTileSizes,
           0,
           `Tile size mismatch for source ${sourceIndex}`,
-          this.viewRejector
+          this.viewRejector,
         );
       }
 

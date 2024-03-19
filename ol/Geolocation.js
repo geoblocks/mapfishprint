@@ -84,10 +84,10 @@ export class GeolocationError extends BaseEvent {
 
 /***
  * @template Return
- * @typedef {import("./Observable").OnSignature<'change', import("./events/Event.js").default, Return> &
- *   import("./Observable").OnSignature<GeolocationObjectEventTypes, import("./Object").ObjectEvent, Return> &
+ * @typedef {import("./Observable").OnSignature<GeolocationObjectEventTypes, import("./Object").ObjectEvent, Return> &
  *   import("./Observable").OnSignature<'error', GeolocationError, Return> &
- *   import("./Observable").CombinedOnSignature<import("./Observable").EventTypes|GeolocationObjectEventTypes, Return>} GeolocationOnSignature
+ *   import("./Observable").CombinedOnSignature<import("./Observable").EventTypes|GeolocationObjectEventTypes, Return> &
+ *   import("./Observable").OnSignature<import("./Observable").EventTypes, import("./events/Event.js").default, Return>} GeolocationOnSignature
  */
 
 /**
@@ -189,7 +189,7 @@ class Geolocation extends BaseObject {
     if (projection) {
       this.transform_ = getTransformFromProjections(
         getProjection('EPSG:4326'),
-        projection
+        projection,
       );
       if (this.position_) {
         this.set(Property.POSITION, this.transform_(this.position_));
@@ -207,7 +207,7 @@ class Geolocation extends BaseObject {
         this.watchId_ = navigator.geolocation.watchPosition(
           this.positionChange_.bind(this),
           this.positionError_.bind(this),
-          this.getTrackingOptions()
+          this.getTrackingOptions(),
         );
       } else if (!tracking && this.watchId_ !== undefined) {
         navigator.geolocation.clearWatch(this.watchId_);
@@ -225,15 +225,15 @@ class Geolocation extends BaseObject {
     this.set(Property.ACCURACY, coords.accuracy);
     this.set(
       Property.ALTITUDE,
-      coords.altitude === null ? undefined : coords.altitude
+      coords.altitude === null ? undefined : coords.altitude,
     );
     this.set(
       Property.ALTITUDE_ACCURACY,
-      coords.altitudeAccuracy === null ? undefined : coords.altitudeAccuracy
+      coords.altitudeAccuracy === null ? undefined : coords.altitudeAccuracy,
     );
     this.set(
       Property.HEADING,
-      coords.heading === null ? undefined : toRadians(coords.heading)
+      coords.heading === null ? undefined : toRadians(coords.heading),
     );
     if (!this.position_) {
       this.position_ = [coords.longitude, coords.latitude];

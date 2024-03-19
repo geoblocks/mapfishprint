@@ -1,7 +1,7 @@
 export default Or;
 /**
  * @classdesc
- * Represents a logical `<Or>` operator between two ore more filter conditions.
+ * Represents a logical `<Or>` operator between two or more filter conditions.
  * @api
  */
 declare class Or extends LogicalNary {
@@ -10,5 +10,5 @@ declare class Or extends LogicalNary {
      */
     constructor(...args: import("./Filter.js").default[]);
 }
-import LogicalNary from "./LogicalNary.js";
+import LogicalNary from './LogicalNary.js';
 //# sourceMappingURL=Or.d.ts.map

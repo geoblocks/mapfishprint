@@ -21,9 +21,9 @@ export type Options = {
      */
     displacement: Array<number>;
     /**
-     * Declutter mode: `declutter`, `obstacle`, 'none
+     * Declutter mode: `declutter`, `obstacle`, `none`.
      */
-    declutterMode: "declutter" | "obstacle" | "none" | undefined;
+    declutterMode: import('../style/Style.js').DeclutterMode;
 };
 /**
  * @typedef {Object} Options
@@ -32,7 +32,8 @@ export type Options = {
  * @property {number} rotation Rotation.
  * @property {number|import("../size.js").Size} scale Scale.
  * @property {Array<number>} displacement Displacement.
- * @property {"declutter"|"obstacle"|"none"|undefined} declutterMode Declutter mode: `declutter`, `obstacle`, 'none */
+ * @property {import('../style/Style.js').DeclutterMode} declutterMode Declutter mode: `declutter`, `obstacle`, `none`.
+ */
 /**
  * @classdesc
  * A base class used for creating subclasses and not instantiated in
@@ -78,7 +79,7 @@ declare class ImageStyle {
     private displacement_;
     /**
      * @private
-     * @type {"declutter"|"obstacle"|"none"|undefined}
+     * @type {import('../style/Style.js').DeclutterMode}
      */
     private declutterMode_;
     /**
@@ -124,10 +125,10 @@ declare class ImageStyle {
     getDisplacement(): Array<number>;
     /**
      * Get the declutter mode of the shape
-     * @return {"declutter"|"obstacle"|"none"|undefined} Shape's declutter mode
+     * @return {import("./Style.js").DeclutterMode} Shape's declutter mode
      * @api
      */
-    getDeclutterMode(): "declutter" | "obstacle" | "none" | undefined;
+    getDeclutterMode(): import("./Style.js").DeclutterMode;
     /**
      * Get the anchor point in pixels. The anchor determines the center point for the
      * symbolizer.
@@ -139,14 +140,14 @@ declare class ImageStyle {
      * Get the image element for the symbolizer.
      * @abstract
      * @param {number} pixelRatio Pixel ratio.
-     * @return {HTMLCanvasElement|HTMLVideoElement|HTMLImageElement} Image element.
+     * @return {import('../DataTile.js').ImageLike} Image element.
      */
-    getImage(pixelRatio: number): HTMLCanvasElement | HTMLVideoElement | HTMLImageElement;
+    getImage(pixelRatio: number): import('../DataTile.js').ImageLike;
     /**
      * @abstract
-     * @return {HTMLCanvasElement|HTMLVideoElement|HTMLImageElement} Image element.
+     * @return {import('../DataTile.js').ImageLike} Image element.
      */
-    getHitDetectionImage(): HTMLCanvasElement | HTMLVideoElement | HTMLImageElement;
+    getHitDetectionImage(): import('../DataTile.js').ImageLike;
     /**
      * Get the image pixel ratio.
      * @param {number} pixelRatio Pixel ratio.
@@ -225,5 +226,9 @@ declare class ImageStyle {
      * @param {function(import("../events/Event.js").default): void} listener Listener function.
      */
     unlistenImageChange(listener: (arg0: import("../events/Event.js").default) => void): void;
+    /**
+     * @return {Promise<void>} `false` or Promise that resolves when the style is ready to use.
+     */
+    ready(): Promise<void>;
 }
 //# sourceMappingURL=Image.d.ts.map

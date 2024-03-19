@@ -1,4 +1,9 @@
 /**
+ * @param {number} stride Stride.
+ * @return {import("./Geometry.js").GeometryLayout} layout Layout.
+ */
+export function getLayoutForStride(stride: number): import("./Geometry.js").GeometryLayout;
+/**
  * @param {import("./Geometry.js").GeometryLayout} layout Layout.
  * @return {number} Stride.
  */
@@ -97,5 +102,5 @@ declare class SimpleGeometry extends Geometry {
      */
     protected setLayout(layout: import("./Geometry.js").GeometryLayout | undefined, coordinates: Array<any>, nesting: number): void;
 }
-import Geometry from "./Geometry.js";
+import Geometry from './Geometry.js';
 //# sourceMappingURL=SimpleGeometry.d.ts.map

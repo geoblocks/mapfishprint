@@ -30,17 +30,17 @@ declare class Target extends Disposable {
     private eventTarget_;
     /**
      * @private
-     * @type {Object<string, number>}
+     * @type {Object<string, number>|null}
      */
     private pendingRemovals_;
     /**
      * @private
-     * @type {Object<string, number>}
+     * @type {Object<string, number>|null}
      */
     private dispatching_;
     /**
      * @private
-     * @type {Object<string, Array<import("../events.js").Listener>>}
+     * @type {Object<string, Array<import("../events.js").Listener>>|null}
      */
     private listeners_;
     /**
@@ -79,5 +79,5 @@ declare class Target extends Disposable {
      */
     removeEventListener(type: string, listener: import("../events.js").Listener): void;
 }
-import Disposable from "../Disposable.js";
+import Disposable from '../Disposable.js';
 //# sourceMappingURL=Target.d.ts.map

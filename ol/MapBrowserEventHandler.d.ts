@@ -12,7 +12,7 @@ declare class MapBrowserEventHandler extends Target {
      */
     private map_;
     /**
-     * @type {any}
+     * @type {ReturnType<typeof setTimeout>}
      * @private
      */
     private clickTimeoutId_;
@@ -136,5 +136,5 @@ declare class MapBrowserEventHandler extends Target {
      */
     private isMoving_;
 }
-import Target from "./events/Target.js";
+import Target from './events/Target.js';
 //# sourceMappingURL=MapBrowserEventHandler.d.ts.map

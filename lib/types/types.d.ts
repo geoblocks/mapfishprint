@@ -82,6 +82,20 @@ export interface MFPWmtsLayer extends MFPLayer {
     style: string;
     version: string;
 }
+export interface MFPWmsLayer extends MFPLayer {
+    type: 'wms';
+    baseURL: string;
+    imageFormat: string;
+    layers: string[];
+    customParams: Record<string, string>;
+    /** The server type ("mapserver", "geoserver" or "qgisserver"). */
+    serverType: string;
+    opacity: number;
+    version: string;
+    styles: string[];
+    /** For GeoServer, and MapServer, ask the map server to do the rotation. */
+    useNativeAngle: boolean;
+}
 export interface MFPImageLayer extends MFPLayer {
     type: 'image';
     extent: number[];
@@ -103,13 +117,13 @@ export interface MFPMap {
     projection: string;
     rotation: number;
     useNearestScale?: boolean;
+    pdfA?: boolean;
 }
 export interface MFPAttributes {
     map: MFPMap;
-    datasource: any[];
 }
 export interface MFPSpec {
-    attributes: MFPAttributes;
+    attributes: Partial<MFPAttributes>;
     layout: string;
     format: string;
     smtp?: Record<string, string>;
@@ -123,8 +137,12 @@ export interface MFPStatusResponse {
     done: boolean;
     downloadURL: string;
     elapsedTime: number;
+    error?: string;
     status: string;
     waitingTime: number;
+}
+export interface MFPCancelResponse {
+    status: number;
 }
 export {};
 //# sourceMappingURL=types.d.ts.map

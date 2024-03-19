@@ -130,11 +130,6 @@ declare class ImageArcGISRest extends ImageSource {
     private params_;
     /**
      * @private
-     * @type {import("../Image.js").default}
-     */
-    private image_;
-    /**
-     * @private
      * @type {import("../size.js").Size}
      */
     private imageSize_;
@@ -149,6 +144,11 @@ declare class ImageArcGISRest extends ImageSource {
      */
     private ratio_;
     /**
+     * @private
+     * @type {import("../proj/Projection.js").default}
+     */
+    private loaderProjection_;
+    /**
      * Get the user-provided params, i.e. those passed to the constructor through
      * the "params" option, and possibly updated using the updateParams method.
      * @return {Object} Params.
@@ -156,29 +156,11 @@ declare class ImageArcGISRest extends ImageSource {
      */
     getParams(): any;
     /**
-     * @param {import("../extent.js").Extent} extent Extent.
-     * @param {number} resolution Resolution.
-     * @param {number} pixelRatio Pixel ratio.
-     * @param {import("../proj/Projection.js").default} projection Projection.
-     * @return {import("../Image.js").default} Single image.
-     */
-    getImageInternal(extent: import("../extent.js").Extent, resolution: number, pixelRatio: number, projection: import("../proj/Projection.js").default): import("../Image.js").default;
-    /**
      * Return the image load function of the source.
      * @return {import("../Image.js").LoadFunction} The image load function.
      * @api
      */
     getImageLoadFunction(): import("../Image.js").LoadFunction;
-    /**
-     * @param {import("../extent.js").Extent} extent Extent.
-     * @param {import("../size.js").Size} size Size.
-     * @param {number} pixelRatio Pixel ratio.
-     * @param {import("../proj/Projection.js").default} projection Projection.
-     * @param {Object} params Params.
-     * @return {string} Request URL.
-     * @private
-     */
-    private getRequestUrl_;
     /**
      * Return the URL used for this ArcGIS source.
      * @return {string|undefined} URL.
@@ -204,5 +186,5 @@ declare class ImageArcGISRest extends ImageSource {
      */
     updateParams(params: any): void;
 }
-import ImageSource from "./Image.js";
+import ImageSource from './Image.js';
 //# sourceMappingURL=ImageArcGISRest.d.ts.map

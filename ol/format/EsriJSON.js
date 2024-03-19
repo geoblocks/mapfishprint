@@ -10,7 +10,6 @@ import MultiPoint from '../geom/MultiPoint.js';
 import MultiPolygon from '../geom/MultiPolygon.js';
 import Point from '../geom/Point.js';
 import Polygon from '../geom/Polygon.js';
-import {assert} from '../asserts.js';
 import {containsExtent} from '../extent.js';
 import {deflateCoordinates} from '../geom/flat/deflate.js';
 import {get as getProjection} from '../proj.js';
@@ -136,8 +135,8 @@ class EsriJSON extends JSONFeature {
           this.readFeatureFromObject(
             esriJSONFeatures[i],
             options,
-            object.objectIdFieldName
-          )
+            object.objectIdFieldName,
+          ),
         );
       }
       return features;
@@ -303,7 +302,7 @@ function convertRings(rings, layout) {
       flatRing,
       0,
       flatRing.length,
-      layout.length
+      layout.length,
     );
     if (clockwise) {
       outerRings.push([rings[i]]);
@@ -319,7 +318,7 @@ function convertRings(rings, layout) {
       const outerRing = outerRings[i][0];
       const containsHole = containsExtent(
         new LinearRing(outerRing).getExtent(),
-        new LinearRing(hole).getExtent()
+        new LinearRing(hole).getExtent(),
       );
       if (containsHole) {
         // the hole is contained push it into our polygon
@@ -452,7 +451,7 @@ function writePointGeometry(geometry, options) {
       y: coordinates[1],
     };
   } else {
-    assert(false, 34); // Invalid geometry layout
+    throw new Error('Invalid geometry layout');
   }
   return esriJSON;
 }
@@ -564,7 +563,7 @@ function writeGeometry(geometry, options) {
   const geometryWriter = GEOMETRY_WRITERS[geometry.getType()];
   return geometryWriter(
     transformGeometryWithOptions(geometry, true, options),
-    options
+    options,
   );
 }
 

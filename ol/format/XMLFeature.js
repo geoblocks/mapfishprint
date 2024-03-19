@@ -43,13 +43,15 @@ class XMLFeature extends FeatureFormat {
   readFeature(source, options) {
     if (!source) {
       return null;
-    } else if (typeof source === 'string') {
+    }
+    if (typeof source === 'string') {
       const doc = parse(source);
       return this.readFeatureFromDocument(doc, options);
-    } else if (isDocument(source)) {
+    }
+    if (isDocument(source)) {
       return this.readFeatureFromDocument(
         /** @type {Document} */ (source),
-        options
+        options,
       );
     }
     return this.readFeatureFromNode(/** @type {Element} */ (source), options);
@@ -88,13 +90,15 @@ class XMLFeature extends FeatureFormat {
   readFeatures(source, options) {
     if (!source) {
       return [];
-    } else if (typeof source === 'string') {
+    }
+    if (typeof source === 'string') {
       const doc = parse(source);
       return this.readFeaturesFromDocument(doc, options);
-    } else if (isDocument(source)) {
+    }
+    if (isDocument(source)) {
       return this.readFeaturesFromDocument(
         /** @type {Document} */ (source),
-        options
+        options,
       );
     }
     return this.readFeaturesFromNode(/** @type {Element} */ (source), options);
@@ -113,7 +117,7 @@ class XMLFeature extends FeatureFormat {
       if (n.nodeType == Node.ELEMENT_NODE) {
         extend(
           features,
-          this.readFeaturesFromNode(/** @type {Element} */ (n), options)
+          this.readFeaturesFromNode(/** @type {Element} */ (n), options),
         );
       }
     }
@@ -141,13 +145,15 @@ class XMLFeature extends FeatureFormat {
   readGeometry(source, options) {
     if (!source) {
       return null;
-    } else if (typeof source === 'string') {
+    }
+    if (typeof source === 'string') {
       const doc = parse(source);
       return this.readGeometryFromDocument(doc, options);
-    } else if (isDocument(source)) {
+    }
+    if (isDocument(source)) {
       return this.readGeometryFromDocument(
         /** @type {Document} */ (source),
-        options
+        options,
       );
     }
     return this.readGeometryFromNode(/** @type {Element} */ (source), options);
@@ -183,10 +189,12 @@ class XMLFeature extends FeatureFormat {
   readProjection(source) {
     if (!source) {
       return null;
-    } else if (typeof source === 'string') {
+    }
+    if (typeof source === 'string') {
       const doc = parse(source);
       return this.readProjectionFromDocument(doc);
-    } else if (isDocument(source)) {
+    }
+    if (isDocument(source)) {
       return this.readProjectionFromDocument(/** @type {Document} */ (source));
     }
     return this.readProjectionFromNode(/** @type {Element} */ (source));

@@ -8,6 +8,14 @@ export type Result = {
      * VertexPixel.
      */
     vertexPixel: import("../pixel.js").Pixel | null;
+    /**
+     * Feature.
+     */
+    feature: import("../Feature.js").default | null;
+    /**
+     * Segment, or `null` if snapped to a vertex.
+     */
+    segment: Array<import("../coordinate.js").Coordinate> | null;
 };
 export type SegmentData = {
     /**
@@ -40,8 +48,21 @@ export type Options = {
     /**
      * Snap to features from this source. Either this option or features should be provided
      */
-    source?: import("../source/Vector.js").default<import("../geom/Geometry.js").default> | undefined;
+    source?: import("../source/Vector.js").default<import("../Feature.js").default<import("../geom/Geometry.js").default>> | undefined;
 };
+/**
+ * *
+ */
+export type SnapOnSignature<Return> = import("../Observable").OnSignature<import("../Observable").EventTypes, import("../events/Event.js").default, Return> & import("../Observable").OnSignature<import("../ObjectEventType").Types | 'change:active', import("../Object").ObjectEvent, Return> & import("../Observable").OnSignature<'snap', SnapEvent, Return> & import("../Observable").CombinedOnSignature<import("../Observable").EventTypes | import("../ObjectEventType").Types | 'change:active' | 'snap', Return>;
+/***
+ * @template Return
+ * @typedef {import("../Observable").OnSignature<import("../Observable").EventTypes, import("../events/Event.js").default, Return> &
+ *   import("../Observable").OnSignature<import("../ObjectEventType").Types|
+ *     'change:active', import("../Object").ObjectEvent, Return> &
+ *   import("../Observable").OnSignature<'snap', SnapEvent, Return> &
+ *   import("../Observable").CombinedOnSignature<import("../Observable").EventTypes|import("../ObjectEventType").Types|
+ *     'change:active'|'snap', Return>} SnapOnSignature
+ */
 /**
  * @classdesc
  * Handles snapping of vector features while modifying or drawing them.  The
@@ -63,6 +84,7 @@ export type Options = {
  *
  *     map.addInteraction(snap);
  *
+ * @fires SnapEvent
  * @api
  */
 declare class Snap extends PointerInteraction {
@@ -70,6 +92,18 @@ declare class Snap extends PointerInteraction {
      * @param {Options} [options] Options.
      */
     constructor(options?: Options | undefined);
+    /***
+     * @type {SnapOnSignature<import("../events").EventsKey>}
+     */
+    on: SnapOnSignature<import("../events").EventsKey>;
+    /***
+     * @type {SnapOnSignature<import("../events").EventsKey>}
+     */
+    once: SnapOnSignature<import("../events").EventsKey>;
+    /***
+     * @type {SnapOnSignature<void>}
+     */
+    un: SnapOnSignature<void>;
     /**
      * @type {import("../source/Vector.js").default|null}
      * @private
@@ -140,16 +174,6 @@ declare class Snap extends PointerInteraction {
      * @api
      */
     addFeature(feature: import("../Feature.js").default, register?: boolean | undefined): void;
-    /**
-     * @param {import("../Feature.js").default} feature Feature.
-     * @private
-     */
-    private forEachFeatureAdd_;
-    /**
-     * @param {import("../Feature.js").default} feature Feature.
-     * @private
-     */
-    private forEachFeatureRemove_;
     /**
      * @return {import("../Collection.js").default<import("../Feature.js").default>|Array<import("../Feature.js").default>} Features.
      * @private
@@ -246,5 +270,6 @@ declare class Snap extends PointerInteraction {
      */
     private segmentPolygonGeometry_;
 }
-import PointerInteraction from "./Pointer.js";
+import { SnapEvent } from '../events/SnapEvent.js';
+import PointerInteraction from './Pointer.js';
 //# sourceMappingURL=Snap.d.ts.map

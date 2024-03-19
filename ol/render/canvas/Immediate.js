@@ -56,7 +56,7 @@ class CanvasImmediateRenderer extends VectorContext {
     transform,
     viewRotation,
     squaredTolerance,
-    userTransform
+    userTransform,
   ) {
     super();
 
@@ -142,7 +142,7 @@ class CanvasImmediateRenderer extends VectorContext {
 
     /**
      * @private
-     * @type {HTMLCanvasElement|HTMLVideoElement|HTMLImageElement}
+     * @type {import('../../DataTile.js').ImageLike}
      */
     this.image_ = null;
 
@@ -290,7 +290,7 @@ class CanvasImmediateRenderer extends VectorContext {
       end,
       stride,
       this.transform_,
-      this.pixelCoordinates_
+      this.pixelCoordinates_,
     );
     const context = this.context_;
     const localTransform = this.tmpLocalTransform_;
@@ -323,9 +323,10 @@ class CanvasImmediateRenderer extends VectorContext {
           1,
           rotation,
           -centerX,
-          -centerY
+          -centerY,
         );
-        context.setTransform.apply(context, localTransform);
+        context.save();
+        context.transform.apply(context, localTransform);
         context.translate(centerX, centerY);
         context.scale(this.imageScale_[0], this.imageScale_[1]);
         context.drawImage(
@@ -337,9 +338,9 @@ class CanvasImmediateRenderer extends VectorContext {
           -this.imageAnchorX_,
           -this.imageAnchorY_,
           this.imageWidth_,
-          this.imageHeight_
+          this.imageHeight_,
         );
-        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.restore();
       } else {
         context.drawImage(
           this.image_,
@@ -350,7 +351,7 @@ class CanvasImmediateRenderer extends VectorContext {
           x,
           y,
           this.imageWidth_,
-          this.imageHeight_
+          this.imageHeight_,
         );
       }
     }
@@ -383,7 +384,7 @@ class CanvasImmediateRenderer extends VectorContext {
       end,
       stride,
       this.transform_,
-      this.pixelCoordinates_
+      this.pixelCoordinates_,
     );
     const context = this.context_;
     let rotation = this.textRotation_;
@@ -401,6 +402,7 @@ class CanvasImmediateRenderer extends VectorContext {
         this.textScale_[0] != 1 ||
         this.textScale_[1] != 1
       ) {
+        context.save();
         context.translate(x - this.textOffsetX_, y - this.textOffsetY_);
         context.rotate(rotation);
         context.translate(this.textOffsetX_, this.textOffsetY_);
@@ -411,7 +413,7 @@ class CanvasImmediateRenderer extends VectorContext {
         if (this.textFillState_) {
           context.fillText(this.text_, 0, 0);
         }
-        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.restore();
       } else {
         if (this.textStrokeState_) {
           context.strokeText(this.text_, x, y);
@@ -440,7 +442,7 @@ class CanvasImmediateRenderer extends VectorContext {
       end,
       stride,
       this.transform_,
-      this.pixelCoordinates_
+      this.pixelCoordinates_,
     );
     context.moveTo(pixelCoordinates[0], pixelCoordinates[1]);
     let length = pixelCoordinates.length;
@@ -471,7 +473,7 @@ class CanvasImmediateRenderer extends VectorContext {
         offset,
         ends[i],
         stride,
-        true
+        true,
       );
     }
     return offset;
@@ -485,6 +487,14 @@ class CanvasImmediateRenderer extends VectorContext {
    * @api
    */
   drawCircle(geometry) {
+    if (this.squaredTolerance_) {
+      geometry = /** @type {import("../../geom/Circle.js").default} */ (
+        geometry.simplifyTransformed(
+          this.squaredTolerance_,
+          this.userTransform_,
+        )
+      );
+    }
     if (!intersects(this.extent_, geometry.getExtent())) {
       return;
     }
@@ -498,7 +508,7 @@ class CanvasImmediateRenderer extends VectorContext {
       const pixelCoordinates = transformGeom2D(
         geometry,
         this.transform_,
-        this.pixelCoordinates_
+        this.pixelCoordinates_,
       );
       const dx = pixelCoordinates[2] - pixelCoordinates[0];
       const dy = pixelCoordinates[3] - pixelCoordinates[1];
@@ -510,7 +520,7 @@ class CanvasImmediateRenderer extends VectorContext {
         pixelCoordinates[1],
         radius,
         0,
-        2 * Math.PI
+        2 * Math.PI,
       );
       if (this.fillState_) {
         context.fill();
@@ -556,46 +566,48 @@ class CanvasImmediateRenderer extends VectorContext {
     switch (type) {
       case 'Point':
         this.drawPoint(
-          /** @type {import("../../geom/Point.js").default} */ (geometry)
+          /** @type {import("../../geom/Point.js").default} */ (geometry),
         );
         break;
       case 'LineString':
         this.drawLineString(
-          /** @type {import("../../geom/LineString.js").default} */ (geometry)
+          /** @type {import("../../geom/LineString.js").default} */ (geometry),
         );
         break;
       case 'Polygon':
         this.drawPolygon(
-          /** @type {import("../../geom/Polygon.js").default} */ (geometry)
+          /** @type {import("../../geom/Polygon.js").default} */ (geometry),
         );
         break;
       case 'MultiPoint':
         this.drawMultiPoint(
-          /** @type {import("../../geom/MultiPoint.js").default} */ (geometry)
+          /** @type {import("../../geom/MultiPoint.js").default} */ (geometry),
         );
         break;
       case 'MultiLineString':
         this.drawMultiLineString(
           /** @type {import("../../geom/MultiLineString.js").default} */ (
             geometry
-          )
+          ),
         );
         break;
       case 'MultiPolygon':
         this.drawMultiPolygon(
-          /** @type {import("../../geom/MultiPolygon.js").default} */ (geometry)
+          /** @type {import("../../geom/MultiPolygon.js").default} */ (
+            geometry
+          ),
         );
         break;
       case 'GeometryCollection':
         this.drawGeometryCollection(
           /** @type {import("../../geom/GeometryCollection.js").default} */ (
             geometry
-          )
+          ),
         );
         break;
       case 'Circle':
         this.drawCircle(
-          /** @type {import("../../geom/Circle.js").default} */ (geometry)
+          /** @type {import("../../geom/Circle.js").default} */ (geometry),
         );
         break;
       default:
@@ -614,7 +626,7 @@ class CanvasImmediateRenderer extends VectorContext {
    */
   drawFeature(feature, style) {
     const geometry = style.getGeometryFunction()(feature);
-    if (!geometry || !intersects(this.extent_, geometry.getExtent())) {
+    if (!geometry) {
       return;
     }
     this.setStyle(style);
@@ -645,7 +657,7 @@ class CanvasImmediateRenderer extends VectorContext {
       geometry = /** @type {import("../../geom/Point.js").default} */ (
         geometry.simplifyTransformed(
           this.squaredTolerance_,
-          this.userTransform_
+          this.userTransform_,
         )
       );
     }
@@ -670,7 +682,7 @@ class CanvasImmediateRenderer extends VectorContext {
       geometry = /** @type {import("../../geom/MultiPoint.js").default} */ (
         geometry.simplifyTransformed(
           this.squaredTolerance_,
-          this.userTransform_
+          this.userTransform_,
         )
       );
     }
@@ -695,7 +707,7 @@ class CanvasImmediateRenderer extends VectorContext {
       geometry = /** @type {import("../../geom/LineString.js").default} */ (
         geometry.simplifyTransformed(
           this.squaredTolerance_,
-          this.userTransform_
+          this.userTransform_,
         )
       );
     }
@@ -712,7 +724,7 @@ class CanvasImmediateRenderer extends VectorContext {
         0,
         flatCoordinates.length,
         geometry.getStride(),
-        false
+        false,
       );
       context.stroke();
     }
@@ -734,7 +746,7 @@ class CanvasImmediateRenderer extends VectorContext {
         /** @type {import("../../geom/MultiLineString.js").default} */ (
           geometry.simplifyTransformed(
             this.squaredTolerance_,
-            this.userTransform_
+            this.userTransform_,
           )
         );
     }
@@ -756,7 +768,7 @@ class CanvasImmediateRenderer extends VectorContext {
           offset,
           ends[i],
           stride,
-          false
+          false,
         );
       }
       context.stroke();
@@ -778,7 +790,7 @@ class CanvasImmediateRenderer extends VectorContext {
       geometry = /** @type {import("../../geom/Polygon.js").default} */ (
         geometry.simplifyTransformed(
           this.squaredTolerance_,
-          this.userTransform_
+          this.userTransform_,
         )
       );
     }
@@ -798,7 +810,7 @@ class CanvasImmediateRenderer extends VectorContext {
         geometry.getOrientedFlatCoordinates(),
         0,
         /** @type {Array<number>} */ (geometry.getEnds()),
-        geometry.getStride()
+        geometry.getStride(),
       );
       if (this.fillState_) {
         context.fill();
@@ -823,7 +835,7 @@ class CanvasImmediateRenderer extends VectorContext {
       geometry = /** @type {import("../../geom/MultiPolygon.js").default} */ (
         geometry.simplifyTransformed(
           this.squaredTolerance_,
-          this.userTransform_
+          this.userTransform_,
         )
       );
     }
@@ -911,7 +923,7 @@ class CanvasImmediateRenderer extends VectorContext {
       }
       if (!equals(contextStrokeState.lineDash, strokeState.lineDash)) {
         context.setLineDash(
-          (contextStrokeState.lineDash = strokeState.lineDash)
+          (contextStrokeState.lineDash = strokeState.lineDash),
         );
       }
       if (contextStrokeState.lineDashOffset != strokeState.lineDashOffset) {
@@ -986,7 +998,7 @@ class CanvasImmediateRenderer extends VectorContext {
       const fillStyleColor = fillStyle.getColor();
       this.fillState_ = {
         fillStyle: asColorLike(
-          fillStyleColor ? fillStyleColor : defaultFillStyle
+          fillStyleColor ? fillStyleColor : defaultFillStyle,
         ),
       };
     }
@@ -1029,7 +1041,7 @@ class CanvasImmediateRenderer extends VectorContext {
             ? strokeStyleMiterLimit
             : defaultMiterLimit,
         strokeStyle: asColorLike(
-          strokeStyleColor ? strokeStyleColor : defaultStrokeStyle
+          strokeStyleColor ? strokeStyleColor : defaultStrokeStyle,
         ),
       };
     }
@@ -1084,7 +1096,7 @@ class CanvasImmediateRenderer extends VectorContext {
         const textFillStyleColor = textFillStyle.getColor();
         this.textFillState_ = {
           fillStyle: asColorLike(
-            textFillStyleColor ? textFillStyleColor : defaultFillStyle
+            textFillStyleColor ? textFillStyleColor : defaultFillStyle,
           ),
         };
       }
@@ -1124,7 +1136,7 @@ class CanvasImmediateRenderer extends VectorContext {
               ? textStrokeStyleMiterLimit
               : defaultMiterLimit,
           strokeStyle: asColorLike(
-            textStrokeStyleColor ? textStrokeStyleColor : defaultStrokeStyle
+            textStrokeStyleColor ? textStrokeStyleColor : defaultStrokeStyle,
           ),
         };
       }

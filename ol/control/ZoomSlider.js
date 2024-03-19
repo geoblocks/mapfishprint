@@ -27,6 +27,8 @@ const Direction = {
  * @property {number} [duration=200] Animation duration in milliseconds.
  * @property {function(import("../MapEvent.js").default):void} [render] Function called when the control
  * should be re-rendered. This is called in a `requestAnimationFrame` callback.
+ * @property {HTMLElement|string} [target] Specify a target if you want the control to be
+ * rendered outside of the map's viewport.
  */
 
 /**
@@ -47,6 +49,7 @@ class ZoomSlider extends Control {
     options = options ? options : {};
 
     super({
+      target: options.target,
       element: document.createElement('div'),
       render: options.render,
     });
@@ -138,23 +141,23 @@ class ZoomSlider extends Control {
     containerElement.addEventListener(
       PointerEventType.POINTERDOWN,
       this.handleDraggerStart_.bind(this),
-      false
+      false,
     );
     containerElement.addEventListener(
       PointerEventType.POINTERMOVE,
       this.handleDraggerDrag_.bind(this),
-      false
+      false,
     );
     containerElement.addEventListener(
       PointerEventType.POINTERUP,
       this.handleDraggerEnd_.bind(this),
-      false
+      false,
     );
 
     containerElement.addEventListener(
       EventType.CLICK,
       this.handleContainerClick_.bind(this),
-      false
+      false,
     );
     thumbElement.addEventListener(EventType.CLICK, stopPropagation, false);
   }
@@ -228,7 +231,7 @@ class ZoomSlider extends Control {
 
     const relativePosition = this.getRelativePosition_(
       event.offsetX - this.thumbSize_[0] / 2,
-      event.offsetY - this.thumbSize_[1] / 2
+      event.offsetY - this.thumbSize_[1] / 2,
     );
 
     const resolution = this.getResolutionForPosition_(relativePosition);
@@ -262,7 +265,7 @@ class ZoomSlider extends Control {
         const doc = this.getMap().getOwnerDocument();
         this.dragListenerKeys_.push(
           listen(doc, PointerEventType.POINTERMOVE, drag, this),
-          listen(doc, PointerEventType.POINTERUP, end, this)
+          listen(doc, PointerEventType.POINTERUP, end, this),
         );
       }
     }

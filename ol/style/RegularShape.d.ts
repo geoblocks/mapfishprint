@@ -1,6 +1,6 @@
 export default RegularShape;
 /**
- * Specify radius for regular polygons, or radius1 and radius2 for stars.
+ * Specify radius for regular polygons, or both radius and radius2 for stars.
  */
 export type Options = {
     /**
@@ -15,13 +15,9 @@ export type Options = {
     /**
      * Radius of a regular polygon.
      */
-    radius?: number | undefined;
+    radius: number;
     /**
-     * First radius of a star. Ignored if radius is set.
-     */
-    radius1?: number | undefined;
-    /**
-     * Second radius of a star.
+     * Second radius to make a star instead of a regular polygon.
      */
     radius2?: number | undefined;
     /**
@@ -47,19 +43,19 @@ export type Options = {
     rotateWithView?: boolean | undefined;
     /**
      * Scale. Unless two dimensional scaling is required a better
-     * result may be obtained with appropriate settings for `radius`, `radius1` and `radius2`.
+     * result may be obtained with appropriate settings for `radius` and `radius2`.
      */
     scale?: number | import("../size.js").Size | undefined;
     /**
      * Declutter mode.
      */
-    declutterMode?: "declutter" | "obstacle" | "none" | undefined;
+    declutterMode?: import("./Style.js").DeclutterMode | undefined;
 };
 export type RenderOptions = {
     /**
      * StrokeStyle.
      */
-    strokeStyle?: import("../colorlike.js").ColorLike | undefined;
+    strokeStyle: import("../colorlike.js").ColorLike | undefined;
     /**
      * StrokeWidth.
      */
@@ -68,6 +64,10 @@ export type RenderOptions = {
      * Size.
      */
     size: number;
+    /**
+     * LineCap.
+     */
+    lineCap: CanvasLineCap;
     /**
      * LineDash.
      */
@@ -86,14 +86,13 @@ export type RenderOptions = {
     miterLimit: number;
 };
 /**
- * Specify radius for regular polygons, or radius1 and radius2 for stars.
+ * Specify radius for regular polygons, or both radius and radius2 for stars.
  * @typedef {Object} Options
  * @property {import("./Fill.js").default} [fill] Fill style.
  * @property {number} points Number of points for stars and regular polygons. In case of a polygon, the number of points
  * is the number of sides.
- * @property {number} [radius] Radius of a regular polygon.
- * @property {number} [radius1] First radius of a star. Ignored if radius is set.
- * @property {number} [radius2] Second radius of a star.
+ * @property {number} radius Radius of a regular polygon.
+ * @property {number} [radius2] Second radius to make a star instead of a regular polygon.
  * @property {number} [angle=0] Shape's angle in radians. A value of 0 will have one of the shape's points facing up.
  * @property {Array<number>} [displacement=[0, 0]] Displacement of the shape in pixels.
  * Positive values will shift the shape right and up.
@@ -101,14 +100,15 @@ export type RenderOptions = {
  * @property {number} [rotation=0] Rotation in radians (positive rotation clockwise).
  * @property {boolean} [rotateWithView=false] Whether to rotate the shape with the view.
  * @property {number|import("../size.js").Size} [scale=1] Scale. Unless two dimensional scaling is required a better
- * result may be obtained with appropriate settings for `radius`, `radius1` and `radius2`.
- * @property {"declutter"|"obstacle"|"none"|undefined} [declutterMode] Declutter mode.
+ * result may be obtained with appropriate settings for `radius` and `radius2`.
+ * @property {import('./Style.js').DeclutterMode} [declutterMode] Declutter mode.
  */
 /**
  * @typedef {Object} RenderOptions
- * @property {import("../colorlike.js").ColorLike} [strokeStyle] StrokeStyle.
+ * @property {import("../colorlike.js").ColorLike|undefined} strokeStyle StrokeStyle.
  * @property {number} strokeWidth StrokeWidth.
  * @property {number} size Size.
+ * @property {CanvasLineCap} lineCap LineCap.
  * @property {Array<number>|null} lineDash LineDash.
  * @property {number} lineDashOffset LineDashOffset.
  * @property {CanvasLineJoin} lineJoin LineJoin.
@@ -117,7 +117,7 @@ export type RenderOptions = {
 /**
  * @classdesc
  * Set regular shape style for vector features. The resulting shape will be
- * a regular polygon when `radius` is provided, or a star when `radius1` and
+ * a regular polygon when `radius` is provided, or a star when both `radius` and
  * `radius2` are provided.
  * @api
  */
@@ -130,15 +130,15 @@ declare class RegularShape extends ImageStyle {
      * @private
      * @type {Object<number, HTMLCanvasElement>}
      */
-    private canvas_;
+    private canvases_;
     /**
      * @private
-     * @type {HTMLCanvasElement}
+     * @type {HTMLCanvasElement|null}
      */
     private hitDetectionCanvas_;
     /**
      * @private
-     * @type {import("./Fill.js").default}
+     * @type {import("./Fill.js").default|null}
      */
     private fill_;
     /**
@@ -168,7 +168,7 @@ declare class RegularShape extends ImageStyle {
     private angle_;
     /**
      * @private
-     * @type {import("./Stroke.js").default}
+     * @type {import("./Stroke.js").default|null}
      */
     private stroke_;
     /**
@@ -181,6 +181,7 @@ declare class RegularShape extends ImageStyle {
      * @type {RenderOptions}
      */
     private renderOptions_;
+    imageState_: number;
     /**
      * Clones the style.
      * @return {RegularShape} The cloned style.
@@ -195,16 +196,16 @@ declare class RegularShape extends ImageStyle {
     getAngle(): number;
     /**
      * Get the fill style for the shape.
-     * @return {import("./Fill.js").default} Fill style.
+     * @return {import("./Fill.js").default|null} Fill style.
      * @api
      */
-    getFill(): import("./Fill.js").default;
+    getFill(): import("./Fill.js").default | null;
     /**
      * Set the fill style.
-     * @param {import("./Fill.js").default} fill Fill style.
+     * @param {import("./Fill.js").default|null} fill Fill style.
      * @api
      */
-    setFill(fill: import("./Fill.js").default): void;
+    setFill(fill: import("./Fill.js").default | null): void;
     /**
      * @return {HTMLCanvasElement} Image element.
      */
@@ -236,16 +237,16 @@ declare class RegularShape extends ImageStyle {
     getRadius2(): number | undefined;
     /**
      * Get the stroke style for the shape.
-     * @return {import("./Stroke.js").default} Stroke style.
+     * @return {import("./Stroke.js").default|null} Stroke style.
      * @api
      */
-    getStroke(): import("./Stroke.js").default;
+    getStroke(): import("./Stroke.js").default | null;
     /**
      * Set the stroke style.
-     * @param {import("./Stroke.js").default} stroke Stroke style.
+     * @param {import("./Stroke.js").default|null} stroke Stroke style.
      * @api
      */
-    setStroke(stroke: import("./Stroke.js").default): void;
+    setStroke(stroke: import("./Stroke.js").default | null): void;
     /**
      * Calculate additional canvas size needed for the miter.
      * @param {string} lineJoin Line join
@@ -274,6 +275,7 @@ declare class RegularShape extends ImageStyle {
     /**
      * @private
      * @param {RenderOptions} renderOptions Render options.
+     * @return {HTMLCanvasElement} Canvas containing the icon
      */
     private createHitDetectionCanvas_;
     /**
@@ -288,5 +290,5 @@ declare class RegularShape extends ImageStyle {
      */
     private drawHitDetectionCanvas_;
 }
-import ImageStyle from "./Image.js";
+import ImageStyle from './Image.js';
 //# sourceMappingURL=RegularShape.d.ts.map

@@ -4,11 +4,11 @@ declare class VectorTile extends Tile {
      * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
      * @param {import("./TileState.js").default} state State.
      * @param {string} src Data source url.
-     * @param {import("./format/Feature.js").default} format Feature format.
+     * @param {import("./format/Feature.js").default<typeof import("./Feature.js").default|typeof import("./render/Feature.js").default>} format Feature format.
      * @param {import("./Tile.js").LoadFunction} tileLoadFunction Tile load function.
      * @param {import("./Tile.js").Options} [options] Tile options.
      */
-    constructor(tileCoord: import("./tilecoord.js").TileCoord, state: any, src: string, format: import("./format/Feature.js").default, tileLoadFunction: import("./Tile.js").LoadFunction, options?: import("./Tile.js").Options | undefined);
+    constructor(tileCoord: import("./tilecoord.js").TileCoord, state: any, src: string, format: import("./format/Feature.js").default<typeof import("./Feature.js").default | typeof import("./render/Feature.js").default>, tileLoadFunction: import("./Tile.js").LoadFunction, options?: import("./Tile.js").Options | undefined);
     /**
      * Extent of this tile; set by the source.
      * @type {import("./extent.js").Extent}
@@ -21,7 +21,7 @@ declare class VectorTile extends Tile {
     private format_;
     /**
      * @private
-     * @type {Array<import("./Feature.js").default>}
+     * @type {Array<import("./Feature.js").FeatureLike>}
      */
     private features_;
     /**
@@ -74,10 +74,10 @@ declare class VectorTile extends Tile {
     /**
      * Function for use in an {@link module:ol/source/VectorTile~VectorTile}'s `tileLoadFunction`.
      * Sets the features for the tile.
-     * @param {Array<import("./Feature.js").default>} features Features.
+     * @param {Array<import("./Feature.js").FeatureLike>} features Features.
      * @api
      */
-    setFeatures(features: Array<import("./Feature.js").default>): void;
+    setFeatures(features: Array<import("./Feature.js").FeatureLike>): void;
     /**
      * Set the feature loader for reading this tile's features.
      * @param {import("./featureloader.js").FeatureLoader} loader Feature loader.
@@ -85,5 +85,5 @@ declare class VectorTile extends Tile {
      */
     setLoader(loader: import("./featureloader.js").FeatureLoader): void;
 }
-import Tile from "./Tile.js";
+import Tile from './Tile.js';
 //# sourceMappingURL=VectorTile.d.ts.map

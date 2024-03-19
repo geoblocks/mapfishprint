@@ -4,7 +4,6 @@
 import Feature from '../Feature.js';
 import LineString from '../geom/LineString.js';
 import TextFeature from './TextFeature.js';
-import {assert} from '../asserts.js';
 import {flipXY} from '../geom/flat/flip.js';
 import {get as getProjection} from '../proj.js';
 import {getStrideForLayout} from '../geom/SimpleGeometry.js';
@@ -97,14 +96,14 @@ class Polyline extends TextFeature {
       flatCoordinates,
       0,
       flatCoordinates.length,
-      stride
+      stride,
     );
     const lineString = new LineString(coordinates, this.geometryLayout_);
 
     return transformGeometryWithOptions(
       lineString,
       false,
-      this.adaptOptions(options)
+      this.adaptOptions(options),
     );
   }
 
@@ -119,8 +118,7 @@ class Polyline extends TextFeature {
     if (geometry) {
       return this.writeGeometryText(geometry, options);
     }
-    assert(false, 40); // Expected `feature` to have a geometry
-    return '';
+    throw new Error('Expected `feature` to have a geometry');
   }
 
   /**

@@ -1,5 +1,5 @@
-import type { Extent } from 'ol/extent';
-import { Transform } from 'ol/transform';
+import type { Extent } from 'ol/extent.js';
+import { Transform } from 'ol/transform.js';
 import type { Feature } from 'ol';
 import type { StyleFunction } from 'ol/style/Style.js';
 import type VectorContext from 'ol/render/VectorContext.js';
@@ -14,7 +14,7 @@ import type { Geometry } from 'ol/geom.js';
  * @param additionalDraw
  * @return
  */
-export declare function drawFeaturesToContext(features: Feature[], styleFunction: StyleFunction | undefined, resolution: number, coordinateToPixelTransform: Transform, vectorContext: VectorContext, additionalDraw: (geometry: Geometry) => void): void;
+export declare function drawFeaturesToContext(features: Feature[], styleFunction: StyleFunction | undefined, resolution: number, coordinateToPixelTransform: Transform, vectorContext: VectorContext, additionalDraw: (cir: VectorContext, geometry: Geometry) => void): void;
 /**
  * A low level utility
  * @param printExtent

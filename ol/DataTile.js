@@ -6,7 +6,7 @@ import TileState from './TileState.js';
 import {createCanvasContext2D} from './dom.js';
 
 /**
- * @typedef {HTMLImageElement|HTMLCanvasElement|HTMLVideoElement} ImageLike
+ * @typedef {HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} ImageLike
  */
 
 /**
@@ -25,7 +25,8 @@ import {createCanvasContext2D} from './dom.js';
 export function asImageLike(data) {
   return data instanceof Image ||
     data instanceof HTMLCanvasElement ||
-    data instanceof HTMLVideoElement
+    data instanceof HTMLVideoElement ||
+    data instanceof ImageBitmap
     ? data
     : null;
 }
@@ -58,7 +59,7 @@ export function toArray(image) {
       image.width,
       image.height,
       undefined,
-      {willReadFrequently: true}
+      {willReadFrequently: true},
     );
   }
   const canvas = sharedContext.canvas;
@@ -70,7 +71,8 @@ export function toArray(image) {
   if (canvas.height !== height) {
     canvas.height = height;
   }
-  sharedContext.drawImage(image, width, height);
+  sharedContext.clearRect(0, 0, width, height);
+  sharedContext.drawImage(image, 0, 0);
   return sharedContext.getImageData(0, 0, width, height).data;
 }
 

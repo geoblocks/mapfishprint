@@ -17,7 +17,7 @@ export type FeatureOnSignature<Return> = import("./Observable").OnSignature<impo
 /**
  * *
  */
-export type ObjectWithGeometry<Geometry> = {
+export type ObjectWithGeometry<Geometry extends import("./geom/Geometry.js").default = import("./geom/Geometry.js").default> = {
     [x: string]: any;
 } & {
     geometry?: Geometry;
@@ -36,7 +36,7 @@ export type ObjectWithGeometry<Geometry> = {
  *     |'change:geometry', Return>} FeatureOnSignature
  */
 /***
- * @template Geometry
+ * @template {import("./geom/Geometry.js").default} [Geometry=import("./geom/Geometry.js").default]
  * @typedef {Object<string, *> & { geometry?: Geometry }} ObjectWithGeometry
  */
 /**
@@ -221,5 +221,5 @@ declare class Feature<Geometry extends import("./geom/Geometry.js").default = im
      */
     setGeometryName(name: string): void;
 }
-import BaseObject from "./Object.js";
+import BaseObject from './Object.js';
 //# sourceMappingURL=Feature.d.ts.map

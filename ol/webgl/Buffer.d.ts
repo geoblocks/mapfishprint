@@ -15,9 +15,9 @@ export namespace BufferUsage {
     export { DYNAMIC_DRAW };
 }
 export default WebGLArrayBuffer;
-import { STATIC_DRAW } from "../webgl.js";
-import { STREAM_DRAW } from "../webgl.js";
-import { DYNAMIC_DRAW } from "../webgl.js";
+import { STATIC_DRAW } from '../webgl.js';
+import { STREAM_DRAW } from '../webgl.js';
+import { DYNAMIC_DRAW } from '../webgl.js';
 /**
  * @classdesc
  * Object used to store an array of data as well as usage information for that data.
@@ -32,7 +32,6 @@ import { DYNAMIC_DRAW } from "../webgl.js";
  * Note:
  * See the documentation of [WebGLRenderingContext.bufferData](https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/bufferData)
  * for more info on buffer usage.
- * @api
  */
 declare class WebGLArrayBuffer {
     /**
@@ -43,44 +42,47 @@ declare class WebGLArrayBuffer {
     constructor(type: number, usage?: number | undefined);
     /**
      * @private
-     * @type {Float32Array|Uint32Array}
+     * @type {Float32Array|Uint32Array|null}
      */
-    private array;
+    private array_;
     /**
      * @private
      * @type {number}
      */
-    private type;
+    private type_;
     /**
      * @private
      * @type {number}
      */
-    private usage;
+    private usage_;
     /**
      * Populates the buffer with an array of the given size (all values will be zeroes).
      * @param {number} size Array size
+     * @return {WebGLArrayBuffer} This
      */
-    ofSize(size: number): void;
+    ofSize(size: number): WebGLArrayBuffer;
     /**
      * Populates the buffer with an array of the given size.
      * @param {Array<number>} array Numerical array
+     * @return {WebGLArrayBuffer} This
      */
-    fromArray(array: Array<number>): void;
+    fromArray(array: Array<number>): WebGLArrayBuffer;
     /**
      * Populates the buffer with a raw binary array buffer.
      * @param {ArrayBuffer} buffer Raw binary buffer to populate the array with. Note that this buffer must have been
      * initialized for the same typed array class.
+     * @return {WebGLArrayBuffer} This
      */
-    fromArrayBuffer(buffer: ArrayBuffer): void;
+    fromArrayBuffer(buffer: ArrayBuffer): WebGLArrayBuffer;
     /**
      * @return {number} Buffer type.
      */
     getType(): number;
     /**
      * Will return null if the buffer was not initialized
-     * @return {Float32Array|Uint32Array} Array.
+     * @return {Float32Array|Uint32Array|null} Array.
      */
-    getArray(): Float32Array | Uint32Array;
+    getArray(): Float32Array | Uint32Array | null;
     /**
      * @return {number} Usage.
      */

@@ -45,6 +45,11 @@ declare class CanvasLayerRenderer<LayerType extends import("../../layer/Layer.js
      */
     context: CanvasRenderingContext2D;
     /**
+     * @private
+     * @type {ZIndexContext}
+     */
+    private deferredContext_;
+    /**
      * @type {boolean}
      */
     containerReused: boolean;
@@ -59,12 +64,12 @@ declare class CanvasLayerRenderer<LayerType extends import("../../layer/Layer.js
      */
     protected frameState: import("../../Map.js").FrameState | null;
     /**
-     * @param {HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} image Image.
+     * @param {import('../../DataTile.js').ImageLike} image Image.
      * @param {number} col The column index.
      * @param {number} row The row index.
      * @return {Uint8ClampedArray|null} The image data.
      */
-    getImageData(image: HTMLCanvasElement | HTMLImageElement | HTMLVideoElement, col: number, row: number): Uint8ClampedArray | null;
+    getImageData(image: import('../../DataTile.js').ImageLike, col: number, row: number): Uint8ClampedArray | null;
     /**
      * @param {import('../../Map.js').FrameState} frameState Frame state.
      * @return {string} Background color.
@@ -104,6 +109,15 @@ declare class CanvasLayerRenderer<LayerType extends import("../../layer/Layer.js
      */
     protected postRender(context: CanvasRenderingContext2D, frameState: import("../../Map.js").FrameState): void;
     /**
+     * @param {import("../../Map.js").FrameState} frameState Frame state.
+     */
+    renderDeferredInternal(frameState: import("../../Map.js").FrameState): void;
+    /**
+     * @param {import("../../Map.js").FrameState} frameState Frame state.
+     * @return {import('../../render/canvas/ZIndexContext.js').ZIndexContextProxy} Context.
+     */
+    getRenderContext(frameState: import("../../Map.js").FrameState): import('../../render/canvas/ZIndexContext.js').ZIndexContextProxy;
+    /**
      * Creates a transform for rendering to an element that will be rotated after rendering.
      * @param {import("../../coordinate.js").Coordinate} center Center.
      * @param {number} resolution Resolution.
@@ -117,5 +131,5 @@ declare class CanvasLayerRenderer<LayerType extends import("../../layer/Layer.js
      */
     protected getRenderTransform(center: import("../../coordinate.js").Coordinate, resolution: number, rotation: number, pixelRatio: number, width: number, height: number, offsetX: number): import("../../transform.js").Transform;
 }
-import LayerRenderer from "../Layer.js";
+import LayerRenderer from '../Layer.js';
 //# sourceMappingURL=Layer.d.ts.map

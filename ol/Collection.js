@@ -1,7 +1,6 @@
 /**
  * @module ol/Collection
  */
-import AssertionError from './AssertionError.js';
 import BaseObject from './Object.js';
 import CollectionEventType from './CollectionEventType.js';
 import Event from './events/Event.js';
@@ -206,7 +205,7 @@ class Collection extends BaseObject {
     this.array_.splice(index, 0, elem);
     this.updateLength_();
     this.dispatchEvent(
-      new CollectionEvent(CollectionEventType.ADD, elem, index)
+      new CollectionEvent(CollectionEventType.ADD, elem, index),
     );
   }
 
@@ -268,7 +267,7 @@ class Collection extends BaseObject {
     this.dispatchEvent(
       /** @type {CollectionEvent<T>} */ (
         new CollectionEvent(CollectionEventType.REMOVE, prev, index)
-      )
+      ),
     );
     return prev;
   }
@@ -296,12 +295,12 @@ class Collection extends BaseObject {
     this.dispatchEvent(
       /** @type {CollectionEvent<T>} */ (
         new CollectionEvent(CollectionEventType.REMOVE, prev, index)
-      )
+      ),
     );
     this.dispatchEvent(
       /** @type {CollectionEvent<T>} */ (
         new CollectionEvent(CollectionEventType.ADD, elem, index)
-      )
+      ),
     );
   }
 
@@ -320,7 +319,7 @@ class Collection extends BaseObject {
   assertUnique_(elem, except) {
     for (let i = 0, ii = this.array_.length; i < ii; ++i) {
       if (this.array_[i] === elem && i !== except) {
-        throw new AssertionError(58);
+        throw new Error('Duplicate item added to a unique collection');
       }
     }
   }

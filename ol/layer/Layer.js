@@ -5,7 +5,9 @@ import BaseLayer from './Base.js';
 import EventType from '../events/EventType.js';
 import LayerProperty from './Property.js';
 import RenderEventType from '../render/EventType.js';
+import View from '../View.js';
 import {assert} from '../asserts.js';
+import {intersects} from '../extent.js';
 import {listen, unlistenByKey} from '../events.js';
 
 /**
@@ -62,7 +64,7 @@ import {listen, unlistenByKey} from '../events.js';
  * @property {boolean} visible Visible.
  * @property {boolean} managed Managed.
  * @property {import("../extent.js").Extent} [extent] Extent.
- * @property {number} zIndex ZIndex.
+ * @property {number | undefined} zIndex ZIndex.
  * @property {number} maxResolution Maximum resolution.
  * @property {number} minResolution Minimum resolution.
  * @property {number} minZoom Minimum zoom.
@@ -167,7 +169,7 @@ class Layer extends BaseLayer {
 
     this.addChangeListener(
       LayerProperty.SOURCE,
-      this.handleSourcePropertyChange_
+      this.handleSourcePropertyChange_,
     );
 
     const source = options.source
@@ -248,7 +250,7 @@ class Layer extends BaseLayer {
         source,
         EventType.CHANGE,
         this.handleSourceChange_,
-        this
+        this,
       );
       if (source.getState() === 'ready') {
         this.sourceReady_ = true;
@@ -284,12 +286,83 @@ class Layer extends BaseLayer {
   }
 
   /**
+   * The layer is visible on the map view, i.e. within its min/max resolution or zoom and
+   * extent, not set to `visible: false`, and not inside a layer group that is set
+   * to `visible: false`.
+   * @param {View|import("../View.js").ViewStateLayerStateExtent} [view] View or {@link import("../Map.js").FrameState}.
+   * Only required when the layer is not added to a map.
+   * @return {boolean} The layer is visible in the map view.
+   * @api
+   */
+  isVisible(view) {
+    let frameState;
+    const map = this.getMapInternal();
+    if (!view && map) {
+      view = map.getView();
+    }
+    if (view instanceof View) {
+      frameState = {
+        viewState: view.getState(),
+        extent: view.calculateExtent(),
+      };
+    } else {
+      frameState = view;
+    }
+    if (!frameState.layerStatesArray && map) {
+      frameState.layerStatesArray = map.getLayerGroup().getLayerStatesArray();
+    }
+    let layerState;
+    if (frameState.layerStatesArray) {
+      layerState = frameState.layerStatesArray.find(
+        (layerState) => layerState.layer === this,
+      );
+    } else {
+      layerState = this.getLayerState();
+    }
+
+    const layerExtent = this.getExtent();
+
+    return (
+      inView(layerState, frameState.viewState) &&
+      (!layerExtent || intersects(layerExtent, frameState.extent))
+    );
+  }
+
+  /**
+   * Get the attributions of the source of this layer for the given view.
+   * @param {View|import("../View.js").ViewStateLayerStateExtent} [view] View or {@link import("../Map.js").FrameState}.
+   * Only required when the layer is not added to a map.
+   * @return {Array<string>} Attributions for this layer at the given view.
+   * @api
+   */
+  getAttributions(view) {
+    if (!this.isVisible(view)) {
+      return [];
+    }
+    let getAttributions;
+    const source = this.getSource();
+    if (source) {
+      getAttributions = source.getAttributions();
+    }
+    if (!getAttributions) {
+      return [];
+    }
+    const frameState =
+      view instanceof View ? view.getViewStateAndExtent() : view;
+    let attributions = getAttributions(frameState);
+    if (!Array.isArray(attributions)) {
+      attributions = [attributions];
+    }
+    return attributions;
+  }
+
+  /**
    * In charge to manage the rendering of the layer. One layer type is
    * bounded with one layer renderer.
    * @param {?import("../Map.js").FrameState} frameState Frame state.
    * @param {HTMLElement} target Target which the renderer may (but need not) use
    * for rendering its content.
-   * @return {HTMLElement} The rendered element.
+   * @return {HTMLElement|null} The rendered element.
    */
   render(frameState, target) {
     const layerRenderer = this.getRenderer();
@@ -298,6 +371,7 @@ class Layer extends BaseLayer {
       this.rendered = true;
       return layerRenderer.renderFrame(frameState, target);
     }
+    return null;
   }
 
   /**
@@ -305,6 +379,29 @@ class Layer extends BaseLayer {
    */
   unrender() {
     this.rendered = false;
+  }
+
+  /** @return {string} Declutter */
+  getDeclutter() {
+    return undefined;
+  }
+
+  /**
+   * @param {import("../Map.js").FrameState} frameState Frame state.
+   * @param {import("../layer/Layer.js").State} layerState Layer state.
+   */
+  renderDeclutter(frameState, layerState) {}
+
+  /**
+   * When the renderer follows a layout -> render approach, do the final rendering here.
+   * @param {import('../Map.js').FrameState} frameState Frame state
+   */
+  renderDeferred(frameState) {
+    const layerRenderer = this.getRenderer();
+    if (!layerRenderer) {
+      return;
+    }
+    layerRenderer.renderDeferred(frameState);
   }
 
   /**
@@ -358,16 +455,15 @@ class Layer extends BaseLayer {
             /** @type {import("../render/Event.js").default} */ (evt);
           const layerStatesArray = renderEvent.frameState.layerStatesArray;
           const layerState = this.getLayerState(false);
-          // A layer can only be added to the map once. Use either `layer.setMap()` or `map.addLayer()`, not both.
           assert(
             !layerStatesArray.some(function (arrayLayerState) {
               return arrayLayerState.layer === layerState.layer;
             }),
-            67
+            'A layer can only be added to the map once. Use either `layer.setMap()` or `map.addLayer()`, not both.',
           );
           layerStatesArray.push(layerState);
         },
-        this
+        this,
       );
       this.mapRenderKey_ = listen(this, EventType.CHANGE, map.render, map);
       this.changed();

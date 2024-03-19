@@ -20,6 +20,14 @@ export function binarySearch(haystack: Array<any>, needle: any, comparator?: Fun
  */
 export function ascending(a: any, b: any): number;
 /**
+ * Compare function sorting arrays in descending order.  Safe to use for numeric values.
+ * @param {*} a The first object to be compared.
+ * @param {*} b The second object to be compared.
+ * @return {number} A negative number, zero, or a positive number as the first
+ *     argument is greater than, equal to, or less than the second.
+ */
+export function descending(a: any, b: any): number;
+/**
  * {@link module:ol/tilegrid/TileGrid~TileGrid#getZForResolution} can use a function
  * of this type to determine which nearest resolution to use.
  *
@@ -62,11 +70,11 @@ export function extend<VALUE>(arr: VALUE[], data: VALUE | VALUE[]): void;
  */
 export function remove<VALUE>(arr: VALUE[], obj: VALUE): boolean;
 /**
- * @param {Array|Uint8ClampedArray} arr1 The first array to compare.
- * @param {Array|Uint8ClampedArray} arr2 The second array to compare.
+ * @param {Array<any>|Uint8ClampedArray} arr1 The first array to compare.
+ * @param {Array<any>|Uint8ClampedArray} arr2 The second array to compare.
  * @return {boolean} Whether the two arrays are equal.
  */
-export function equals(arr1: any[] | Uint8ClampedArray, arr2: any[] | Uint8ClampedArray): boolean;
+export function equals(arr1: Array<any> | Uint8ClampedArray, arr2: Array<any> | Uint8ClampedArray): boolean;
 /**
  * Sort the passed array such that the relative order of equal elements is preserved.
  * See https://en.wikipedia.org/wiki/Sorting_algorithm#Stability for details.

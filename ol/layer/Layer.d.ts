@@ -104,7 +104,7 @@ export type State = {
     /**
      * ZIndex.
      */
-    zIndex: number;
+    zIndex: number | undefined;
     /**
      * Maximum resolution.
      */
@@ -172,7 +172,7 @@ export type State = {
  * @property {boolean} visible Visible.
  * @property {boolean} managed Managed.
  * @property {import("../extent.js").Extent} [extent] Extent.
- * @property {number} zIndex ZIndex.
+ * @property {number | undefined} zIndex ZIndex.
  * @property {number} maxResolution Maximum resolution.
  * @property {number} minResolution Minimum resolution.
  * @property {number} minZoom Minimum zoom.
@@ -257,9 +257,9 @@ declare class Layer<SourceType extends import("../source/Source.js").default = i
      * @param {?import("../Map.js").FrameState} frameState Frame state.
      * @param {HTMLElement} target Target which the renderer may (but need not) use
      * for rendering its content.
-     * @return {HTMLElement} The rendered element.
+     * @return {HTMLElement|null} The rendered element.
      */
-    render(frameState: import("../Map.js").FrameState | null, target: HTMLElement): HTMLElement;
+    render(frameState: import("../Map.js").FrameState | null, target: HTMLElement): HTMLElement | null;
     /**
      * Get the layer source.
      * @return {SourceType|null} The layer source (or `null` if not yet set).
@@ -291,9 +291,39 @@ declare class Layer<SourceType extends import("../source/Source.js").default = i
      */
     getData(pixel: import("../pixel").Pixel): Uint8ClampedArray | Uint8Array | Float32Array | DataView | null;
     /**
+     * The layer is visible on the map view, i.e. within its min/max resolution or zoom and
+     * extent, not set to `visible: false`, and not inside a layer group that is set
+     * to `visible: false`.
+     * @param {View|import("../View.js").ViewStateLayerStateExtent} [view] View or {@link import("../Map.js").FrameState}.
+     * Only required when the layer is not added to a map.
+     * @return {boolean} The layer is visible in the map view.
+     * @api
+     */
+    isVisible(view?: View | import("../View.js").ViewStateLayerStateExtent | undefined): boolean;
+    /**
+     * Get the attributions of the source of this layer for the given view.
+     * @param {View|import("../View.js").ViewStateLayerStateExtent} [view] View or {@link import("../Map.js").FrameState}.
+     * Only required when the layer is not added to a map.
+     * @return {Array<string>} Attributions for this layer at the given view.
+     * @api
+     */
+    getAttributions(view?: View | import("../View.js").ViewStateLayerStateExtent | undefined): Array<string>;
+    /**
      * Called when a layer is not visible during a map render.
      */
     unrender(): void;
+    /** @return {string} Declutter */
+    getDeclutter(): string;
+    /**
+     * @param {import("../Map.js").FrameState} frameState Frame state.
+     * @param {import("../layer/Layer.js").State} layerState Layer state.
+     */
+    renderDeclutter(frameState: import("../Map.js").FrameState, layerState: import("../layer/Layer.js").State): void;
+    /**
+     * When the renderer follows a layout -> render approach, do the final rendering here.
+     * @param {import('../Map.js').FrameState} frameState Frame state
+     */
+    renderDeferred(frameState: import('../Map.js').FrameState): void;
     /**
      * For use inside the library only.
      * @param {import("../Map.js").default|null} map Map.
@@ -339,5 +369,6 @@ declare class Layer<SourceType extends import("../source/Source.js").default = i
      */
     protected createRenderer(): RendererType;
 }
-import BaseLayer from "./Base.js";
+import BaseLayer from './Base.js';
+import View from '../View.js';
 //# sourceMappingURL=Layer.d.ts.map

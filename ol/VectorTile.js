@@ -9,7 +9,7 @@ class VectorTile extends Tile {
    * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
    * @param {import("./TileState.js").default} state State.
    * @param {string} src Data source url.
-   * @param {import("./format/Feature.js").default} format Feature format.
+   * @param {import("./format/Feature.js").default<typeof import("./Feature.js").default|typeof import("./render/Feature.js").default>} format Feature format.
    * @param {import("./Tile.js").LoadFunction} tileLoadFunction Tile load function.
    * @param {import("./Tile.js").Options} [options] Tile options.
    */
@@ -30,7 +30,7 @@ class VectorTile extends Tile {
 
     /**
      * @private
-     * @type {Array<import("./Feature.js").default>}
+     * @type {Array<import("./Feature.js").FeatureLike>}
      */
     this.features_ = null;
 
@@ -117,7 +117,7 @@ class VectorTile extends Tile {
   /**
    * Function for use in an {@link module:ol/source/VectorTile~VectorTile}'s `tileLoadFunction`.
    * Sets the features for the tile.
-   * @param {Array<import("./Feature.js").default>} features Features.
+   * @param {Array<import("./Feature.js").FeatureLike>} features Features.
    * @api
    */
   setFeatures(features) {

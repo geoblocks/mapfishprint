@@ -13,13 +13,13 @@ import Point from '../geom/Point.js';
 import Polygon from '../geom/Polygon.js';
 import Projection from '../proj/Projection.js';
 import RenderFeature from '../render/Feature.js';
-import {assert} from '../asserts.js';
 import {get} from '../proj.js';
 import {inflateEnds} from '../geom/flat/orient.js';
 
 /**
+ * @template {import("../Feature.js").FeatureClass} FeatureClassToFeature
  * @typedef {Object} Options
- * @property {import("../Feature.js").FeatureClass} [featureClass] Class for features returned by
+ * @property {FeatureClassToFeature} [featureClass] Class for features returned by
  * {@link module:ol/format/MVT~MVT#readFeatures}. Set to {@link module:ol/Feature~Feature} to get full editing and geometry
  * support at the cost of decreased rendering performance. The default is
  * {@link module:ol/render/Feature~RenderFeature}, which is optimized for rendering and hit detection.
@@ -34,12 +34,13 @@ import {inflateEnds} from '../geom/flat/orient.js';
  * @classdesc
  * Feature format for reading data in the Mapbox MVT format.
  *
- * @param {Options} [options] Options.
+ * @template {import('../Feature.js').FeatureClass} [T=typeof import("../render/Feature.js").default]
+ * @extends {FeatureFormat<T>}
  * @api
  */
 class MVT extends FeatureFormat {
   /**
-   * @param {Options} [options] Options.
+   * @param {Options<T>} [options] Options.
    */
   constructor(options) {
     super();
@@ -140,12 +141,12 @@ class MVT extends FeatureFormat {
           // close polygon
           flatCoordinates.push(
             flatCoordinates[currentEnd],
-            flatCoordinates[currentEnd + 1]
+            flatCoordinates[currentEnd + 1],
           );
           coordsLen += 2;
         }
       } else {
-        assert(false, 59); // Invalid command found in the PBF
+        throw new Error('Invalid command found in the PBF');
       }
     }
 
@@ -192,8 +193,9 @@ class MVT extends FeatureFormat {
         geometryType,
         flatCoordinates,
         ends,
+        2,
         values,
-        id
+        id,
       );
       feature.transform(options.dataProjection);
     } else {
@@ -209,12 +211,12 @@ class MVT extends FeatureFormat {
           geometryType === 'Point'
             ? new Point(flatCoordinates, 'XY')
             : geometryType === 'LineString'
-            ? new LineString(flatCoordinates, 'XY')
-            : geometryType === 'MultiPoint'
-            ? new MultiPoint(flatCoordinates, 'XY')
-            : geometryType === 'MultiLineString'
-            ? new MultiLineString(flatCoordinates, 'XY', ends)
-            : null;
+              ? new LineString(flatCoordinates, 'XY')
+              : geometryType === 'MultiPoint'
+                ? new MultiPoint(flatCoordinates, 'XY')
+                : geometryType === 'MultiLineString'
+                  ? new MultiLineString(flatCoordinates, 'XY', ends)
+                  : null;
       }
       const ctor = /** @type {typeof import("../Feature.js").default} */ (
         this.featureClass_
@@ -246,7 +248,7 @@ class MVT extends FeatureFormat {
    *
    * @param {ArrayBuffer} source Source.
    * @param {import("./Feature.js").ReadOptions} [options] Read options.
-   * @return {Array<import("../Feature.js").FeatureLike>} Features.
+   * @return {Array<import('./Feature.js').FeatureClassToFeature<T>>} Features.
    * @api
    */
   readFeatures(source, options) {
@@ -277,7 +279,9 @@ class MVT extends FeatureFormat {
       }
     }
 
-    return features;
+    return /** @type {Array<import('./Feature.js').FeatureClassToFeature<T>>} */ (
+      features
+    );
   }
 
   /**
@@ -349,18 +353,18 @@ function layerPBFReader(tag, layer, pbf) {
         tag === 1
           ? pbf.readString()
           : tag === 2
-          ? pbf.readFloat()
-          : tag === 3
-          ? pbf.readDouble()
-          : tag === 4
-          ? pbf.readVarint64()
-          : tag === 5
-          ? pbf.readVarint()
-          : tag === 6
-          ? pbf.readSVarint()
-          : tag === 7
-          ? pbf.readBoolean()
-          : null;
+            ? pbf.readFloat()
+            : tag === 3
+              ? pbf.readDouble()
+              : tag === 4
+                ? pbf.readVarint64()
+                : tag === 5
+                  ? pbf.readVarint()
+                  : tag === 6
+                    ? pbf.readSVarint()
+                    : tag === 7
+                      ? pbf.readBoolean()
+                      : null;
     }
     layer.values.push(value);
   }
@@ -413,10 +417,10 @@ function readRawFeature(pbf, layer, i) {
  * @param {number} type The raw feature's geometry type
  * @param {number} numEnds Number of ends of the flat coordinates of the
  * geometry.
- * @return {import("../geom/Geometry.js").Type} The geometry type.
+ * @return {import("../render/Feature.js").Type} The geometry type.
  */
 function getGeometryType(type, numEnds) {
-  /** @type {import("../geom/Geometry.js").Type} */
+  /** @type {import("../render/Feature.js").Type} */
   let geometryType;
   if (type === 1) {
     geometryType = numEnds === 1 ? 'Point' : 'MultiPoint';

@@ -1,6 +1,7 @@
 /**
  * @module ol/renderer/Composite
  */
+import BaseVectorLayer from '../layer/BaseVector.js';
 import MapRenderer from './Map.js';
 import ObjectEventType from '../ObjectEventType.js';
 import RenderEvent from '../render/Event.js';
@@ -29,7 +30,7 @@ class CompositeMapRenderer extends MapRenderer {
     this.fontChangeListenerKey_ = listen(
       checkedFonts,
       ObjectEventType.PROPERTYCHANGE,
-      map.redrawText.bind(map)
+      map.redrawText.bind(map),
     );
 
     /**
@@ -98,13 +99,20 @@ class CompositeMapRenderer extends MapRenderer {
     const layerStatesArray = frameState.layerStatesArray.sort(function (a, b) {
       return a.zIndex - b.zIndex;
     });
+    const declutter = layerStatesArray.some(
+      (layerState) =>
+        layerState.layer instanceof BaseVectorLayer &&
+        layerState.layer.getDeclutter(),
+    );
+    if (declutter) {
+      // Some layers need decluttering, turn on deferred rendering hint
+      frameState.declutter = {};
+    }
     const viewState = frameState.viewState;
 
     this.children_.length = 0;
-    /**
-     * @type {Array<import("../layer/BaseVector.js").default>}
-     */
-    const declutterLayers = [];
+
+    const renderedLayerStates = [];
     let previousElement = null;
     for (let i = 0, ii = layerStatesArray.length; i < ii; ++i) {
       const layerState = layerStatesArray[i];
@@ -128,15 +136,11 @@ class CompositeMapRenderer extends MapRenderer {
         this.children_.push(element);
         previousElement = element;
       }
-      if ('getDeclutter' in layer) {
-        declutterLayers.push(
-          /** @type {import("../layer/BaseVector.js").default} */ (layer)
-        );
-      }
+
+      renderedLayerStates.push(layerState);
     }
-    for (let i = declutterLayers.length - 1; i >= 0; --i) {
-      declutterLayers[i].renderDeclutter(frameState);
-    }
+
+    this.declutter(frameState, renderedLayerStates);
 
     replaceChildren(this.element_, this.children_);
 
@@ -148,6 +152,23 @@ class CompositeMapRenderer extends MapRenderer {
     }
 
     this.scheduleExpireIconCache(frameState);
+  }
+
+  /**
+   * @param {import("../Map.js").FrameState} frameState Frame state.
+   * @param {Array<import('../layer/Layer.js').State>} layerStates Layers.
+   */
+  declutter(frameState, layerStates) {
+    for (let i = layerStates.length - 1; i >= 0; --i) {
+      const layerState = layerStates[i];
+      const layer = layerState.layer;
+      if (layer.getDeclutter()) {
+        layer.renderDeclutter(frameState, layerState);
+      }
+    }
+    layerStates.forEach((layerState) =>
+      layerState.layer.renderDeferred(frameState),
+    );
   }
 }
 

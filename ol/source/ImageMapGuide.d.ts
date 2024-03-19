@@ -135,14 +135,14 @@ declare class ImageMapGuide extends ImageSource {
     private useOverlay_;
     /**
      * @private
-     * @type {import("../Image.js").default}
-     */
-    private image_;
-    /**
-     * @private
      * @type {number}
      */
     private renderedRevision_;
+    /**
+     * @private
+     * @type {import("../proj/Projection.js").default}
+     */
+    private loaderProjection_;
     /**
      * Get the user-provided params, i.e. those passed to the constructor through
      * the "params" option, and possibly updated using the updateParams method.
@@ -150,14 +150,6 @@ declare class ImageMapGuide extends ImageSource {
      * @api
      */
     getParams(): any;
-    /**
-     * @param {import("../extent.js").Extent} extent Extent.
-     * @param {number} resolution Resolution.
-     * @param {number} pixelRatio Pixel ratio.
-     * @param {import("../proj/Projection.js").default} projection Projection.
-     * @return {import("../Image.js").default} Single image.
-     */
-    getImageInternal(extent: import("../extent.js").Extent, resolution: number, pixelRatio: number, projection: import("../proj/Projection.js").default): import("../Image.js").default;
     /**
      * Return the image load function of the source.
      * @return {import("../Image.js").LoadFunction} The image load function.
@@ -171,22 +163,11 @@ declare class ImageMapGuide extends ImageSource {
      */
     updateParams(params: any): void;
     /**
-     * @param {string} baseUrl The mapagent url.
-     * @param {Object<string, string|number>} params Request parameters.
-     * @param {import("../extent.js").Extent} extent Extent.
-     * @param {import("../size.js").Size} size Size.
-     * @param {import("../proj/Projection.js").default} projection Projection.
-     * @return {string} The mapagent map image request URL.
-     */
-    getUrl(baseUrl: string, params: {
-        [x: string]: string | number;
-    }, extent: import("../extent.js").Extent, size: import("../size.js").Size, projection: import("../proj/Projection.js").default): string;
-    /**
      * Set the image load function of the MapGuide source.
      * @param {import("../Image.js").LoadFunction} imageLoadFunction Image load function.
      * @api
      */
     setImageLoadFunction(imageLoadFunction: import("../Image.js").LoadFunction): void;
 }
-import ImageSource from "./Image.js";
+import ImageSource from './Image.js';
 //# sourceMappingURL=ImageMapGuide.d.ts.map

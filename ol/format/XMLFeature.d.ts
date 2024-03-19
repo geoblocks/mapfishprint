@@ -7,7 +7,8 @@ export default XMLFeature;
  *
  * @abstract
  */
-declare class XMLFeature extends FeatureFormat {
+declare class XMLFeature extends FeatureFormat<typeof import("../Feature.js").default> {
+    constructor();
     /**
      * @type {XMLSerializer}
      * @private
@@ -137,5 +138,5 @@ declare class XMLFeature extends FeatureFormat {
      */
     writeGeometryNode(geometry: import("../geom/Geometry.js").default, options?: import("../format/Feature.js").WriteOptions | undefined): Node;
 }
-import FeatureFormat from "../format/Feature.js";
+import FeatureFormat from '../format/Feature.js';
 //# sourceMappingURL=XMLFeature.d.ts.map

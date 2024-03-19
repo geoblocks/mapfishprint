@@ -61,7 +61,7 @@ export type Options = {
      * Destination source for
      * the drawn features.
      */
-    source?: VectorSource<import("../geom/Geometry.js").default> | undefined;
+    source?: VectorSource<Feature<import("../geom/Geometry.js").default>> | undefined;
     /**
      * Delay in milliseconds after pointerdown
      * before the current vertex can be dragged to its exact position.
@@ -97,7 +97,15 @@ export type Options = {
      */
     finishCondition?: import("../events/condition.js").Condition | undefined;
     /**
-     * Style for sketch features.
+     * Style for sketch features. The draw interaction can have up to three sketch features, depending on the mode.
+     * It will always contain a feature with a `Point` geometry that corresponds to the current cursor position.
+     * If the mode is `LineString` or `Polygon`, and there is at least one drawn point, it will also contain a feature with
+     * a `LineString` geometry that corresponds to the line between the already drawn points and the current cursor position.
+     * If the mode is `Polygon`, and there is at least one drawn point, it will also contain a feature with a `Polygon`
+     * geometry that corresponds to the polygon between the already drawn points and the current cursor position
+     * (note that this polygon has only two points if only one point is drawn).
+     * If the mode is `Circle`, and there is one point drawn, it will also contain a feature with a `Circle` geometry whose
+     * center is the drawn point and the radius is determined by the distance between the drawn point and the cursor.
      */
     style?: import("../style/Style.js").StyleLike | import("../style/flat.js").FlatStyleLike | undefined;
     /**
@@ -141,7 +149,7 @@ export type Options = {
      * not provided, the interaction's `source` will be used.  Tracing requires that the interaction is configured with
      * either a `traceSource` or a `source`.
      */
-    traceSource?: VectorSource<import("../geom/Geometry.js").default> | undefined;
+    traceSource?: VectorSource<Feature<import("../geom/Geometry.js").default>> | undefined;
     /**
      * Wrap the world horizontally on the sketch
      * overlay.
@@ -243,13 +251,13 @@ export type PointSegmentRelationship = {
  * *
  */
 export type DrawOnSignature<Return> = import("../Observable").OnSignature<import("../Observable").EventTypes, import("../events/Event.js").default, Return> & import("../Observable").OnSignature<import("../ObjectEventType").Types | 'change:active', import("../Object").ObjectEvent, Return> & import("../Observable").OnSignature<'drawabort' | 'drawend' | 'drawstart', DrawEvent, Return> & import("../Observable").CombinedOnSignature<import("../Observable").EventTypes | import("../ObjectEventType").Types | 'change:active' | 'drawabort' | 'drawend' | 'drawstart', Return>;
-import Event from "../events/Event.js";
-import Feature from "../Feature.js";
+import Event from '../events/Event.js';
+import Feature from '../Feature.js';
 type DrawEventType = string;
 declare namespace DrawEventType {
-    const DRAWSTART: string;
-    const DRAWEND: string;
-    const DRAWABORT: string;
+    let DRAWSTART: string;
+    let DRAWEND: string;
+    let DRAWABORT: string;
 }
 /***
  * @template Return
@@ -295,7 +303,7 @@ declare class Draw extends PointerInteraction {
      */
     private downPx_;
     /**
-     * @type {?}
+     * @type {ReturnType<typeof setTimeout>}
      * @private
      */
     private downTimeout_;
@@ -564,6 +572,7 @@ declare class Draw extends PointerInteraction {
     /**
      * Add a new coordinate to the drawing.
      * @param {!PointCoordType} coordinate Coordinate
+     * @return {Feature<import("../geom/SimpleGeometry.js").default>} The sketch feature.
      * @private
      */
     private addToDrawing_;
@@ -581,9 +590,10 @@ declare class Draw extends PointerInteraction {
      * Stop drawing and add the sketch feature to the target layer.
      * The {@link module:ol/interaction/Draw~DrawEventType.DRAWEND} event is
      * dispatched before inserting the feature.
+     * @return {Feature<import("../geom/SimpleGeometry.js").default>|null} The drawn feature.
      * @api
      */
-    finishDrawing(): void;
+    finishDrawing(): Feature<import("../geom/SimpleGeometry.js").default> | null;
     /**
      * Stop drawing without adding the sketch feature to the target layer.
      * @return {Feature<import("../geom/SimpleGeometry.js").default>|null} The sketch feature (or null if none).
@@ -628,8 +638,8 @@ declare class Draw extends PointerInteraction {
      */
     private updateState_;
 }
-import VectorSource from "../source/Vector.js";
-import PointerInteraction from "./Pointer.js";
-import VectorLayer from "../layer/Vector.js";
-import LineString from "../geom/LineString.js";
+import VectorSource from '../source/Vector.js';
+import PointerInteraction from './Pointer.js';
+import VectorLayer from '../layer/Vector.js';
+import LineString from '../geom/LineString.js';
 //# sourceMappingURL=Draw.d.ts.map

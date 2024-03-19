@@ -6,9 +6,9 @@
  * @param {number} offset Offset.
  * @param {number} end End.
  * @param {number} stride Stride.
- * @return {boolean} Is clockwise.
+ * @return {boolean|undefined} Is clockwise.
  */
-export function linearRingIsClockwise(flatCoordinates: Array<number>, offset: number, end: number, stride: number): boolean;
+export function linearRingIsClockwise(flatCoordinates: Array<number>, offset: number, end: number, stride: number): boolean | undefined;
 /**
  * Determines if linear rings are oriented.  By default, left-hand orientation
  * is tested (first ring must be clockwise, remaining rings counter-clockwise).
@@ -70,7 +70,7 @@ export function orientLinearRingsArray(flatCoordinates: Array<number>, offset: n
  * @param {Array<number>} flatCoordinates Flat coordinates
  * @param {Array<number>} ends Linear ring end indexes
  * @return {Array<Array<number>>} Two dimensional endss array that can
- * be used to contruct a MultiPolygon
+ * be used to construct a MultiPolygon
  */
 export function inflateEnds(flatCoordinates: Array<number>, ends: Array<number>): Array<Array<number>>;
 //# sourceMappingURL=orient.d.ts.map

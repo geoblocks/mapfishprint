@@ -148,7 +148,7 @@ export type Options = {
      * features to modify.  If a vector source is not provided, a feature collection
      * must be provided with the `features` option.
      */
-    source?: VectorSource<import("../geom/Geometry.js").default> | undefined;
+    source?: VectorSource<Feature<import("../geom/Geometry.js").default>> | undefined;
     /**
      * When configured, point
      * features will be considered for modification based on their visual appearance, instead of being within
@@ -176,13 +176,13 @@ export type Options = {
  * *
  */
 export type ModifyOnSignature<Return> = import("../Observable").OnSignature<import("../Observable").EventTypes, import("../events/Event.js").default, Return> & import("../Observable").OnSignature<import("../ObjectEventType").Types | 'change:active', import("../Object").ObjectEvent, Return> & import("../Observable").OnSignature<'modifyend' | 'modifystart', ModifyEvent, Return> & import("../Observable").CombinedOnSignature<import("../Observable").EventTypes | import("../ObjectEventType").Types | 'change:active' | 'modifyend' | 'modifystart', Return>;
-import Event from "../events/Event.js";
-import Collection from "../Collection.js";
-import Feature from "../Feature.js";
+import Event from '../events/Event.js';
+import Collection from '../Collection.js';
+import Feature from '../Feature.js';
 type ModifyEventType = string;
 declare namespace ModifyEventType {
-    const MODIFYSTART: string;
-    const MODIFYEND: string;
+    let MODIFYSTART: string;
+    let MODIFYEND: string;
 }
 /***
  * @template Return
@@ -517,7 +517,7 @@ declare class Modify extends PointerInteraction {
      */
     private updateSegmentIndices_;
 }
-import VectorSource from "../source/Vector.js";
-import PointerInteraction from "./Pointer.js";
-import VectorLayer from "../layer/Vector.js";
+import VectorSource from '../source/Vector.js';
+import PointerInteraction from './Pointer.js';
+import VectorLayer from '../layer/Vector.js';
 //# sourceMappingURL=Modify.d.ts.map

@@ -111,8 +111,9 @@ declare class CanvasBuilder extends VectorContext {
      * @protected
      * @param {import("../../geom/Geometry").default|import("../Feature.js").default} geometry The geometry.
      * @param {import("../../Feature.js").FeatureLike} feature Feature.
+     * @param {number} index Render order index
      */
-    protected beginGeometry(geometry: import("../../geom/Geometry").default | import("../Feature.js").default, feature: import("../../Feature.js").FeatureLike): void;
+    protected beginGeometry(geometry: import("../../geom/Geometry").default | import("../Feature.js").default, feature: import("../../Feature.js").FeatureLike, index: number): void;
     /**
      * @return {import("../canvas.js").SerializableInstructions} the serializable instructions.
      */
@@ -158,5 +159,5 @@ declare class CanvasBuilder extends VectorContext {
      */
     protected getBufferedMaxExtent(): import("../../extent.js").Extent;
 }
-import VectorContext from "../VectorContext.js";
+import VectorContext from '../VectorContext.js';
 //# sourceMappingURL=Builder.d.ts.map

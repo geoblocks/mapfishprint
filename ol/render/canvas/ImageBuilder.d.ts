@@ -2,12 +2,12 @@ export default CanvasImageBuilder;
 declare class CanvasImageBuilder extends CanvasBuilder {
     /**
      * @private
-     * @type {HTMLCanvasElement|HTMLVideoElement|HTMLImageElement}
+     * @type {import('../../DataTile.js').ImageLike}
      */
     private hitDetectionImage_;
     /**
      * @private
-     * @type {HTMLCanvasElement|HTMLVideoElement|HTMLImageElement}
+     * @type {import('../../DataTile.js').ImageLike}
      */
     private image_;
     /**
@@ -67,7 +67,7 @@ declare class CanvasImageBuilder extends CanvasBuilder {
     private width_;
     /**
      * @private
-     * @type {"declutter"|"obstacle"|"none"|undefined}
+     * @type {import('../../style/Style.js').DeclutterMode}
      */
     private declutterMode_;
     /**
@@ -82,5 +82,5 @@ declare class CanvasImageBuilder extends CanvasBuilder {
      */
     setImageStyle(imageStyle: import("../../style/Image.js").default, sharedData?: any): void;
 }
-import CanvasBuilder from "./Builder.js";
+import CanvasBuilder from './Builder.js';
 //# sourceMappingURL=ImageBuilder.d.ts.map

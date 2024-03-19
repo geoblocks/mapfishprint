@@ -9,12 +9,10 @@ import type { Feature as GeoJSONFeature } from 'geojson';
  * It also defines the print extent.
  */
 export default class BaseCustomizer {
-    readonly printExtent: number[];
-    /**
-     *
-     * @param printExtent The extent to print (useful for MVT / static image layers)
-     */
-    constructor(printExtent: number[]);
+    private printExtent;
+    constructor(printExtent?: number[]);
+    getPrintExtent(): number[];
+    setPrintExtent(printExtent: number[]): void;
     /**
      *
      * @param layerState

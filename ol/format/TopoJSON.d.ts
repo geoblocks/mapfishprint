@@ -79,7 +79,7 @@ export type Options = {
  *
  * @api
  */
-declare class TopoJSON extends JSONFeature {
+declare class TopoJSON extends JSONFeature<typeof Feature> {
     /**
      * @param {Options} [options] Options.
      */
@@ -95,9 +95,13 @@ declare class TopoJSON extends JSONFeature {
      */
     private layers_;
     /**
-     * @type {import("../proj/Projection.js").default}
+     * @param {Object} object Object.
+     * @param {import("./Feature.js").ReadOptions} [options] Read options.
+     * @protected
+     * @return {Array<Feature>} Features.
      */
-    dataProjection: import("../proj/Projection.js").default;
+    protected readFeaturesFromObject(object: any, options?: import("./Feature.js").ReadOptions | undefined): Array<Feature>;
 }
-import JSONFeature from "./JSONFeature.js";
+import Feature from '../Feature.js';
+import JSONFeature from './JSONFeature.js';
 //# sourceMappingURL=TopoJSON.d.ts.map

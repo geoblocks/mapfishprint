@@ -3,9 +3,9 @@
  */
 export type Versions = string;
 export namespace Versions {
-    const VERSION1: string;
-    const VERSION2: string;
-    const VERSION3: string;
+    let VERSION1: string;
+    let VERSION2: string;
+    let VERSION3: string;
 }
 export default IIIFInfo;
 export type PreferredOptions = {
@@ -102,31 +102,31 @@ declare class IIIFInfo {
     setImageInfo(imageInfo: string | ImageInformationResponse): void;
     imageInfo: any;
     /**
-     * @return {Versions} Major IIIF version.
+     * @return {Versions|undefined} Major IIIF version.
      * @api
      */
-    getImageApiVersion(): Versions;
+    getImageApiVersion(): Versions | undefined;
     /**
      * @param {Versions} version Optional IIIF image API version
-     * @return {string} Compliance level as it appears in the IIIF image information
+     * @return {string|undefined} Compliance level as it appears in the IIIF image information
      * response.
      */
-    getComplianceLevelEntryFromProfile(version: Versions): string;
+    getComplianceLevelEntryFromProfile(version: Versions): string | undefined;
     /**
      * @param {Versions} version Optional IIIF image API version
      * @return {string} Compliance level, on of 'level0', 'level1' or 'level2' or undefined
      */
     getComplianceLevelFromProfile(version: Versions): string;
     /**
-     * @return {SupportedFeatures} Image formats, qualities and region / size calculation
+     * @return {SupportedFeatures|undefined} Image formats, qualities and region / size calculation
      * methods that are supported by the IIIF service.
      */
-    getComplianceLevelSupportedFeatures(): SupportedFeatures;
+    getComplianceLevelSupportedFeatures(): SupportedFeatures | undefined;
     /**
      * @param {PreferredOptions} [preferredOptions] Optional options for preferred format and quality.
-     * @return {import("../source/IIIF.js").Options} IIIF tile source ready constructor options.
+     * @return {import("../source/IIIF.js").Options|undefined} IIIF tile source ready constructor options.
      * @api
      */
-    getTileSourceOptions(preferredOptions?: PreferredOptions | undefined): import("../source/IIIF.js").Options;
+    getTileSourceOptions(preferredOptions?: PreferredOptions | undefined): import("../source/IIIF.js").Options | undefined;
 }
 //# sourceMappingURL=IIIFInfo.d.ts.map

@@ -34,7 +34,7 @@ export function getTextDimensions(baseStyle: TextState, chunks: Array<string>): 
  */
 export function rotateAtOffset(context: CanvasRenderingContext2D, rotation: number, offsetX: number, offsetY: number): void;
 /**
- * @param {CanvasRenderingContext2D} context Context.
+ * @param {CanvasRenderingContext2D|import("../render/canvas/ZIndexContext.js").ZIndexContextProxy} context Context.
  * @param {import("../transform.js").Transform|null} transform Transform.
  * @param {number} opacity Opacity.
  * @param {Label|HTMLCanvasElement|HTMLImageElement|HTMLVideoElement} labelOrImage Label.
@@ -46,7 +46,7 @@ export function rotateAtOffset(context: CanvasRenderingContext2D, rotation: numb
  * @param {number} y Y.
  * @param {import("../size.js").Size} scale Scale.
  */
-export function drawImageOrLabel(context: CanvasRenderingContext2D, transform: import("../transform.js").Transform | null, opacity: number, labelOrImage: Label | HTMLCanvasElement | HTMLImageElement | HTMLVideoElement, originX: number, originY: number, w: number, h: number, x: number, y: number, scale: import("../size.js").Size): void;
+export function drawImageOrLabel(context: CanvasRenderingContext2D | import("../render/canvas/ZIndexContext.js").ZIndexContextProxy, transform: import("../transform.js").Transform | null, opacity: number, labelOrImage: Label | HTMLCanvasElement | HTMLImageElement | HTMLVideoElement, originX: number, originY: number, w: number, h: number, x: number, y: number, scale: import("../size.js").Size): void;
 /**
  * @typedef {'Circle' | 'Image' | 'LineString' | 'Polygon' | 'Text' | 'Default'} BuilderType
  */
@@ -79,6 +79,7 @@ export function drawImageOrLabel(context: CanvasRenderingContext2D, transform: i
  * @property {CanvasLineJoin} [lineJoin] LineJoin.
  * @property {number} [lineWidth] LineWidth.
  * @property {number} [miterLimit] MiterLimit.
+ * @property {number} [fillPatternScale] Fill pattern scale.
  */
 /**
  * @typedef {Object} StrokeState
@@ -94,6 +95,7 @@ export function drawImageOrLabel(context: CanvasRenderingContext2D, transform: i
  * @typedef {Object} TextState
  * @property {string} font Font.
  * @property {CanvasTextAlign} [textAlign] TextAlign.
+ * @property {number} [repeat] Repeat.
  * @property {import("../style/Text.js").TextJustify} [justify] Justify.
  * @property {CanvasTextBaseline} textBaseline TextBaseline.
  * @property {import("../style/Text.js").TextPlacement} [placement] Placement.
@@ -123,9 +125,9 @@ export function drawImageOrLabel(context: CanvasRenderingContext2D, transform: i
 export const defaultFont: string;
 /**
  * @const
- * @type {import("../colorlike.js").ColorLike}
+ * @type {string}
  */
-export const defaultFillStyle: import("../colorlike.js").ColorLike;
+export const defaultFillStyle: string;
 /**
  * @const
  * @type {CanvasLineCap}
@@ -278,6 +280,10 @@ export type FillStrokeState = {
      * MiterLimit.
      */
     miterLimit?: number | undefined;
+    /**
+     * Fill pattern scale.
+     */
+    fillPatternScale?: number | undefined;
 };
 export type StrokeState = {
     /**
@@ -318,6 +324,10 @@ export type TextState = {
      * TextAlign.
      */
     textAlign?: CanvasTextAlign | undefined;
+    /**
+     * Repeat.
+     */
+    repeat?: number | undefined;
     /**
      * Justify.
      */
@@ -390,5 +400,5 @@ export type SerializableInstructions = {
 export type DeclutterImageWithText = {
     [x: number]: import("./canvas/Executor.js").ReplayImageOrLabelArgs;
 };
-import BaseObject from "../Object.js";
+import BaseObject from '../Object.js';
 //# sourceMappingURL=canvas.d.ts.map

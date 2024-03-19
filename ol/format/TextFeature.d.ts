@@ -7,7 +7,8 @@ export default TextFeature;
  *
  * @abstract
  */
-declare class TextFeature extends FeatureFormat {
+declare class TextFeature extends FeatureFormat<typeof import("../Feature.js").default> {
+    constructor();
     /**
      * Read the feature from the source.
      *
@@ -108,5 +109,5 @@ declare class TextFeature extends FeatureFormat {
      */
     protected writeGeometryText(geometry: import("../geom/Geometry.js").default, options?: import("../format/Feature.js").WriteOptions | undefined): string;
 }
-import FeatureFormat from "../format/Feature.js";
+import FeatureFormat from '../format/Feature.js';
 //# sourceMappingURL=TextFeature.d.ts.map

@@ -14,7 +14,7 @@ declare class LineString extends SimpleGeometry {
     constructor(coordinates: Array<import("../coordinate.js").Coordinate> | Array<number>, layout?: import("./Geometry.js").GeometryLayout | undefined);
     /**
      * @private
-     * @type {import("../coordinate.js").Coordinate}
+     * @type {import("../coordinate.js").Coordinate|null}
      */
     private flatMidpoint_;
     /**
@@ -112,5 +112,5 @@ declare class LineString extends SimpleGeometry {
      */
     setCoordinates(coordinates: Array<import("../coordinate.js").Coordinate>, layout?: import("./Geometry.js").GeometryLayout | undefined): void;
 }
-import SimpleGeometry from "./SimpleGeometry.js";
+import SimpleGeometry from './SimpleGeometry.js';
 //# sourceMappingURL=LineString.d.ts.map

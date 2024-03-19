@@ -25,7 +25,7 @@ declare class MultiPolygon extends SimpleGeometry {
     private flatInteriorPointsRevision_;
     /**
      * @private
-     * @type {Array<number>}
+     * @type {Array<number>|null}
      */
     private flatInteriorPoints_;
     /**
@@ -45,7 +45,7 @@ declare class MultiPolygon extends SimpleGeometry {
     private orientedRevision_;
     /**
      * @private
-     * @type {Array<number>}
+     * @type {Array<number>|null}
      */
     private orientedFlatCoordinates_;
     /**
@@ -126,7 +126,7 @@ declare class MultiPolygon extends SimpleGeometry {
      */
     setCoordinates(coordinates: Array<Array<Array<import("../coordinate.js").Coordinate>>>, layout?: import("./Geometry.js").GeometryLayout | undefined): void;
 }
-import SimpleGeometry from "./SimpleGeometry.js";
-import Polygon from "./Polygon.js";
-import MultiPoint from "./MultiPoint.js";
+import SimpleGeometry from './SimpleGeometry.js';
+import Polygon from './Polygon.js';
+import MultiPoint from './MultiPoint.js';
 //# sourceMappingURL=MultiPolygon.d.ts.map

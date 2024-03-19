@@ -96,9 +96,10 @@ export type Constraints = {
 };
 export type FitOptions = {
     /**
-     * The size in pixels of the box to fit
-     * the extent into. Default is the current size of the first map in the DOM that
-     * uses this view, or `[100, 100]` if no such map is found.
+     * The size in pixels of the box to
+     * fit the extent into. Defaults to the size of the map the view is associated with.
+     * If no map or multiple maps are connected to the view, provide the desired box size
+     * (e.g. `map.getSize()`).
      */
     size?: import("./size.js").Size | undefined;
     /**
@@ -326,7 +327,7 @@ export type AnimationOptions = {
 };
 export type State = {
     /**
-     * Center.
+     * Center (in view projection coordinates).
      */
     center: import("./coordinate.js").Coordinate;
     /**
@@ -357,6 +358,23 @@ export type State = {
      * Zoom.
      */
     zoom: number;
+};
+/**
+ * Like {@link import ("./Map.js").FrameState}, but just `viewState` and `extent`.
+ */
+export type ViewStateLayerStateExtent = {
+    /**
+     * View state.
+     */
+    viewState: State;
+    /**
+     * Extent (in user projection coordinates).
+     */
+    extent: import("./extent.js").Extent;
+    /**
+     * Layer states.
+     */
+    layerStatesArray?: import("./layer/Layer.js").State[] | undefined;
 };
 export type ViewObjectEventTypes = import("./ObjectEventType").Types | 'change:center' | 'change:resolution' | 'change:rotation';
 /**
@@ -562,7 +580,7 @@ declare class View extends BaseObject {
      * @type {Constraints}
      */
     private constraints_;
-    set padding(arg: number[] | undefined);
+    set padding(padding: number[] | undefined);
     /**
      * Padding (in css pixels).
      * If the map viewport is partially covered with other content (overlays) along
@@ -694,12 +712,12 @@ declare class View extends BaseObject {
      */
     getHints(hints?: number[] | undefined): Array<number>;
     /**
-     * Calculate the extent for the current view state and the passed size.
-     * The size is the pixel dimensions of the box into which the calculated extent
-     * should fit. In most cases you want to get the extent of the entire map,
-     * that is `map.getSize()`.
-     * @param {import("./size.js").Size} [size] Box pixel size. If not provided, the size
-     * of the map that uses this view will be used.
+     * Calculate the extent for the current view state and the passed box size.
+     * @param {import("./size.js").Size} [size] The pixel dimensions of the box
+     * into which the calculated extent should fit. Defaults to the size of the
+     * map the view is associated with.
+     * If no map or multiple maps are connected to the view, provide the desired
+     * box size (e.g. `map.getSize()`).
      * @return {import("./extent.js").Extent} Extent.
      * @api
      */
@@ -821,6 +839,10 @@ declare class View extends BaseObject {
      * @return {State} View state.
      */
     getState(): State;
+    /**
+     * @return {ViewStateLayerStateExtent} Like `FrameState`, but just `viewState` and `extent`.
+     */
+    getViewStateAndExtent(): ViewStateLayerStateExtent;
     /**
      * Get the current zoom level. This method may return non-integer zoom levels
      * if the view does not constrain the resolution, or if an interaction or
@@ -1049,5 +1071,5 @@ declare class View extends BaseObject {
      */
     getConstrainedResolution(targetResolution: number | undefined, direction?: number | undefined): number | undefined;
 }
-import BaseObject from "./Object.js";
+import BaseObject from './Object.js';
 //# sourceMappingURL=View.d.ts.map

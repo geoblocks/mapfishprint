@@ -1,5 +1,5 @@
 export default BaseVectorLayer;
-export type Options<VectorSourceType extends import("../source/Vector.js").default<import("../geom/Geometry.js").default> | import("../source/VectorTile.js").default> = {
+export type Options<VectorSourceType extends import("../source/Vector.js").default<import("../Feature").default<import("../geom/Geometry.js").default>> | import("../source/VectorTile.js").default<import("../Feature").default<import("../geom/Geometry.js").default>>> = {
     /**
      * A CSS class name to set to the layer element.
      */
@@ -68,18 +68,13 @@ export type Options<VectorSourceType extends import("../source/Vector.js").defau
      */
     map?: import("../Map.js").default | undefined;
     /**
-     * Declutter images and text. Decluttering is applied to all
-     * image and text styles of all Vector and VectorTile layers that have set this to `true`. The priority
-     * is defined by the z-index of the layer, the `zIndex` of the style and the render order of features.
-     * Higher z-index means higher priority. Within the same z-index, a feature rendered before another has
-     * higher priority.
-     *
-     * As an optimization decluttered features from layers with the same `className` are rendered above
-     * the fill and stroke styles of all of those layers regardless of z-index.  To opt out of this
-     * behavior and place declutterd features with their own layer configure the layer with a `className`
-     * other than `ol-layer`.
+     * Declutter images and text. Any truthy value will enable
+     * decluttering. Within a layer, a feature rendered before another has higher priority. All layers with the
+     * same `declutter` value will be decluttered together. The priority is determined by the drawing order of the
+     * layers with the same `declutter` value. Higher in the layer stack means higher priority. To declutter distinct
+     * layers or groups of layers separately, use different truthy values for `declutter`.
      */
-    declutter?: boolean | undefined;
+    declutter?: string | number | boolean | undefined;
     /**
      * Layer style. When set to `null`, only
      * features that have their own style will be rendered. See {@link module :ol/style/Style~Style} for the default style
@@ -122,14 +117,14 @@ export type Options<VectorSourceType extends import("../source/Vector.js").defau
  * @extends {Layer<VectorSourceType, RendererType>}
  * @api
  */
-declare class BaseVectorLayer<VectorSourceType extends import("../source/Vector.js").default<import("../geom/Geometry.js").default> | import("../source/VectorTile.js").default, RendererType extends import("../renderer/canvas/VectorLayer.js").default | import("../renderer/canvas/VectorTileLayer.js").default | import("../renderer/canvas/VectorImageLayer.js").default | import("../renderer/webgl/PointsLayer.js").default> extends Layer<VectorSourceType, RendererType> {
+declare class BaseVectorLayer<VectorSourceType extends import("../source/Vector.js").default<import("../Feature").default<import("../geom/Geometry.js").default>> | import("../source/VectorTile.js").default<import("../Feature").default<import("../geom/Geometry.js").default>>, RendererType extends import("../renderer/canvas/VectorLayer.js").default | import("../renderer/canvas/VectorTileLayer.js").default | import("../renderer/canvas/VectorImageLayer.js").default | import("../renderer/webgl/PointsLayer.js").default> extends Layer<VectorSourceType, RendererType> {
     /**
      * @param {Options<VectorSourceType>} [options] Options.
      */
     constructor(options?: Options<VectorSourceType> | undefined);
     /**
      * @private
-     * @type {boolean}
+     * @type {string}
      */
     private declutter_;
     /**
@@ -159,10 +154,6 @@ declare class BaseVectorLayer<VectorSourceType extends import("../source/Vector.
      * @private
      */
     private updateWhileInteracting_;
-    /**
-     * @return {boolean} Declutter.
-     */
-    getDeclutter(): boolean;
     /**
      * @return {number|undefined} Render buffer.
      */
@@ -196,11 +187,6 @@ declare class BaseVectorLayer<VectorSourceType extends import("../source/Vector.
      */
     getUpdateWhileInteracting(): boolean;
     /**
-     * Render declutter items for this layer
-     * @param {import("../Map.js").FrameState} frameState Frame state.
-     */
-    renderDeclutter(frameState: import("../Map.js").FrameState): void;
-    /**
      * @param {import("../render.js").OrderFunction|null|undefined} renderOrder
      *     Render order.
      */
@@ -213,14 +199,20 @@ declare class BaseVectorLayer<VectorSourceType extends import("../source/Vector.
      * `setStyle()` without arguments to reset to the default style. See
      * [the ol/style/Style module]{@link module:ol/style/Style~Style} for information on the default style.
      *
-     * If your layer has a static style, you can use "flat" style object literals instead of
-     * using the `Style` and symbolizer constructors (`Fill`, `Stroke`, etc.).  See the documentation
-     * for the [flat style types]{@link module:ol/style/flat~FlatStyle} to see what properties are supported.
+     * If your layer has a static style, you can use [flat style]{@link module:ol/style/flat~FlatStyle} object
+     * literals instead of using the `Style` and symbolizer constructors (`Fill`, `Stroke`, etc.):
+     * ```js
+     * vectorLayer.setStyle({
+     *   "fill-color": "yellow",
+     *   "stroke-color": "black",
+     *   "stroke-width": 4
+     * })
+     * ```
      *
      * @param {import("../style/Style.js").StyleLike|import("../style/flat.js").FlatStyleLike|null} [style] Layer style.
      * @api
      */
     setStyle(style?: import("../style/Style.js").StyleLike | import("../style/flat.js").FlatStyleLike | null | undefined): void;
 }
-import Layer from "./Layer.js";
+import Layer from './Layer.js';
 //# sourceMappingURL=BaseVector.d.ts.map

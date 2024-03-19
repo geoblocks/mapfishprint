@@ -25,11 +25,14 @@ export type FrameState = {
      */
     coordinateToPixelTransform: import("./transform.js").Transform;
     /**
-     * DeclutterTree.
+     * Declutter trees by declutter group.
+     * When null, no decluttering is needed because no layers have decluttering enabled.
      */
-    declutterTree: any;
+    declutter: {
+        [x: string]: any;
+    } | null;
     /**
-     * Extent.
+     * Extent (in view projection coordinates).
      */
     extent: null | import("./extent.js").Extent;
     /**
@@ -210,7 +213,7 @@ export type MapOptions = {
      * fetched unless this is specified at construction time or through
      * {@link module :ol/Map~Map#setView}.
      */
-    view?: Promise<import("./View.js").ViewOptions> | View | undefined;
+    view?: View | Promise<import("./View.js").ViewOptions> | undefined;
 };
 /**
  * @classdesc
@@ -305,7 +308,7 @@ declare class Map extends BaseObject {
     private pixelRatio_;
     /**
      * @private
-     * @type {*}
+     * @type {ReturnType<typeof setTimeout>}
      */
     private postRenderTimeoutHandle_;
     /**
@@ -597,10 +600,10 @@ declare class Map extends BaseObject {
      * Note that the index treats string and numeric identifiers as the same. So
      * `map.getOverlayById(2)` will return an overlay with id `'2'` or `2`.
      * @param {string|number} id Overlay identifier.
-     * @return {import("./Overlay.js").default} Overlay.
+     * @return {import("./Overlay.js").default|null} Overlay.
      * @api
      */
-    getOverlayById(id: string | number): import("./Overlay.js").default;
+    getOverlayById(id: string | number): import("./Overlay.js").default | null;
     /**
      * Get the map interactions. Modifying this collection changes the interactions
      * associated with the map.
@@ -839,14 +842,15 @@ declare class Map extends BaseObject {
     updateSize(): void;
     /**
      * Recomputes the viewport size and save it on the view object (if any)
+     * @param {import("./size.js").Size|undefined} size The size.
      * @private
      */
     private updateViewportSize_;
 }
-import TileQueue from "./TileQueue.js";
-import Collection from "./Collection.js";
-import MapBrowserEvent from "./MapBrowserEvent.js";
-import LayerGroup from "./layer/Group.js";
-import View from "./View.js";
-import BaseObject from "./Object.js";
+import TileQueue from './TileQueue.js';
+import Collection from './Collection.js';
+import MapBrowserEvent from './MapBrowserEvent.js';
+import LayerGroup from './layer/Group.js';
+import View from './View.js';
+import BaseObject from './Object.js';
 //# sourceMappingURL=Map.d.ts.map

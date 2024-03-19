@@ -122,10 +122,6 @@ declare class Polyline extends TextFeature {
      */
     constructor(options?: Options | undefined);
     /**
-     * @type {import("../proj/Projection.js").default}
-     */
-    dataProjection: import("../proj/Projection.js").default;
-    /**
      * @private
      * @type {number}
      */
@@ -157,6 +153,6 @@ declare class Polyline extends TextFeature {
      */
     protected writeGeometryText(geometry: LineString, options?: import("./Feature.js").WriteOptions | undefined): string;
 }
-import TextFeature from "./TextFeature.js";
-import LineString from "../geom/LineString.js";
+import TextFeature from './TextFeature.js';
+import LineString from '../geom/LineString.js';
 //# sourceMappingURL=Polyline.d.ts.map

@@ -1,59 +1,49 @@
-export default WebGLVectorLayerRenderer;
-/**
- * A callback computing
- * the value of a custom attribute (different for each feature) to be passed on to the GPU.
- * Properties are available as 2nd arg for quicker access.
- */
-export type CustomAttributeCallback = (arg0: import("../../Feature").default, arg1: {
-    [x: string]: any;
-}) => number;
-/**
- * An object containing both shaders (vertex and fragment) as well as the required attributes
- */
-export type ShaderProgram = {
-    /**
-     * Vertex shader source (using the default one if unspecified).
-     */
-    vertexShader?: string | undefined;
-    /**
-     * Fragment shader source (using the default one if unspecified).
-     */
-    fragmentShader?: string | undefined;
-    /**
-     * Custom attributes made available in the vertex shader.
-     * Keys are the names of the attributes which are then accessible in the vertex shader using the `a_` prefix, e.g.: `a_opacity`.
-     * Default shaders rely on the attributes in {@link module :ol/render/webgl/shaders~DefaultAttributes}.
-     */
-    attributes: any;
+export const Uniforms: {
+    RENDER_EXTENT: string;
+    PATTERN_ORIGIN: string;
+    GLOBAL_ALPHA: string;
+    PROJECTION_MATRIX: string;
+    SCREEN_TO_WORLD_MATRIX: string;
+    TIME: string;
+    ZOOM: string;
+    RESOLUTION: string;
+    ROTATION: string;
+    VIEWPORT_SIZE_PX: string;
+    PIXEL_RATIO: string;
+    HIT_DETECTION: string;
 };
+export default WebGLVectorLayerRenderer;
+export type VectorStyle = import('../../render/webgl/VectorStyleRenderer.js').VectorStyle;
 export type Options = {
     /**
      * A CSS class name to set to the canvas element.
      */
     className?: string | undefined;
     /**
-     * Attributes and shaders for filling polygons.
+     * Vector style as literal style or shaders; can also accept an array of styles
      */
-    fill?: ShaderProgram | undefined;
+    style: VectorStyle | Array<VectorStyle>;
     /**
-     * Attributes and shaders for line strings and polygon strokes.
+     * Setting this to true will provide a slight performance boost, but will
+     * prevent all hit detection on the layer.
      */
-    stroke?: ShaderProgram | undefined;
-    /**
-     * Attributes and shaders for points.
-     */
-    point?: ShaderProgram | undefined;
-    /**
-     * Uniform definitions.
-     */
-    uniforms?: {
-        [x: string]: import("../../webgl/Helper.js").UniformValue;
-    } | undefined;
+    disableHitDetection?: boolean | undefined;
     /**
      * Post-processes definitions
      */
     postProcesses?: import("./Layer.js").PostProcessesOptions[] | undefined;
 };
+/**
+ * @typedef {import('../../render/webgl/VectorStyleRenderer.js').VectorStyle} VectorStyle
+ */
+/**
+ * @typedef {Object} Options
+ * @property {string} [className='ol-layer'] A CSS class name to set to the canvas element.
+ * @property {VectorStyle|Array<VectorStyle>} style Vector style as literal style or shaders; can also accept an array of styles
+ * @property {boolean} [disableHitDetection=false] Setting this to true will provide a slight performance boost, but will
+ * prevent all hit detection on the layer.
+ * @property {Array<import("./Layer").PostProcessesOptions>} [postProcesses] Post-processes definitions
+ */
 /**
  * @classdesc
  * Experimental WebGL vector renderer. Supports polygons, lines and points:
@@ -78,6 +68,16 @@ declare class WebGLVectorLayerRenderer extends WebGLLayerRenderer<any> {
      * @param {Options} options Options.
      */
     constructor(layer: import("../../layer/Layer.js").default, options: Options);
+    /**
+     * @type {boolean}
+     * @private
+     */
+    private hitDetectionEnabled_;
+    /**
+     * @type {WebGLRenderTarget}
+     * @private
+     */
+    private hitRenderTarget_;
     sourceRevision_: number;
     previousExtent_: import("../../extent.js").Extent;
     /**
@@ -88,28 +88,60 @@ declare class WebGLVectorLayerRenderer extends WebGLLayerRenderer<any> {
      * @private
      */
     private currentTransform_;
-    fillVertexShader_: string;
-    fillFragmentShader_: string;
-    fillAttributes_: import("../../render/webgl/BatchRenderer").CustomAttribute[];
-    strokeVertexShader_: string;
-    strokeFragmentShader_: string;
-    strokeAttributes_: import("../../render/webgl/BatchRenderer").CustomAttribute[];
-    pointVertexShader_: string;
-    pointFragmentShader_: string;
-    pointAttributes_: import("../../render/webgl/BatchRenderer").CustomAttribute[];
+    tmpCoords_: number[];
+    tmpTransform_: number[];
+    tmpMat4_: number[];
     /**
+     * @type {import("../../transform.js").Transform}
      * @private
      */
-    private worker_;
+    private currentFrameStateTransform_;
+    /**
+     * @type {Array<VectorStyle>}
+     * @private
+     */
+    private styles_;
+    /**
+     * @type {Array<VectorStyleRenderer>}
+     * @private
+     */
+    private styleRenderers_;
+    /**
+     * @type {Array<import('../../render/webgl/VectorStyleRenderer.js').WebGLBuffers>}
+     * @private
+     */
+    private buffers_;
     /**
      * @private
      */
     private batch_;
-    sourceListenKeys_: import("../../events.js").EventsKey[];
-    polygonRenderer_: PolygonBatchRenderer | undefined;
-    pointRenderer_: PointBatchRenderer | undefined;
-    lineStringRenderer_: LineStringBatchRenderer | undefined;
     /**
+     * @private
+     * @type {boolean}
+     */
+    private initialFeaturesAdded_;
+    /**
+     * @private
+     * @type {Array<import("../../events.js").EventsKey|null>}
+     */
+    private sourceListenKeys_;
+    /**
+     * @private
+     * @param {import("../../Map.js").FrameState} frameState Frame state.
+     */
+    private addInitialFeatures_;
+    /**
+     * @param {Options} options Options.
+     * @private
+     */
+    private applyOptions_;
+    /**
+     * @private
+     */
+    private createRenderers_;
+    reset(options: any): void;
+    /**
+     * @param {import("../../proj.js").TransformFunction} projectionTransform Transform function.
      * @param {import("../../source/Vector.js").VectorSourceEvent} event Event.
      * @private
      */
@@ -129,14 +161,25 @@ declare class WebGLVectorLayerRenderer extends WebGLLayerRenderer<any> {
      */
     private handleSourceFeatureClear_;
     /**
+     * @param {import("../../transform.js").Transform} batchInvertTransform Inverse of the transformation in which geometries are expressed
+     * @private
+     */
+    private applyUniforms_;
+    /**
      * Render the layer.
      * @param {import("../../Map.js").FrameState} frameState Frame state.
      * @return {HTMLElement} The rendered element.
      */
     renderFrame(frameState: import("../../Map.js").FrameState): HTMLElement;
+    /**
+     * Render the world, either to the main framebuffer or to the hit framebuffer
+     * @param {import("../../Map.js").FrameState} frameState current frame state
+     * @param {boolean} forHitDetection whether the rendering is for hit detection
+     * @param {number} startWorld the world to render in the first iteration
+     * @param {number} endWorld the last world to render
+     * @param {number} worldWidth the width of the worlds being rendered
+     */
+    renderWorlds(frameState: import("../../Map.js").FrameState, forHitDetection: boolean, startWorld: number, endWorld: number, worldWidth: number): void;
 }
-import WebGLLayerRenderer from "./Layer.js";
-import PolygonBatchRenderer from "../../render/webgl/PolygonBatchRenderer.js";
-import PointBatchRenderer from "../../render/webgl/PointBatchRenderer.js";
-import LineStringBatchRenderer from "../../render/webgl/LineStringBatchRenderer.js";
+import WebGLLayerRenderer from './Layer.js';
 //# sourceMappingURL=VectorLayer.d.ts.map

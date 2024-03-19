@@ -1,19 +1,11 @@
 import BaseCustomizer from './BaseCustomizer';
 import type Map from 'ol/Map.js';
-import type { MFPImageLayer, MFPLayer, MFPMap, MFPOSMLayer, MFPSpec, MFPWmtsLayer } from './types';
+import type { MFPImageLayer, MFPLayer, MFPMap, MFPOSMLayer, MFPWmtsLayer, MFPWmsLayer } from './types';
+import type { Geometry } from 'ol/geom.js';
 import type { State } from 'ol/layer/Layer.js';
 import LayerGroup from 'ol/layer/Group';
-interface CreateSpecOptions {
-    map: Map;
-    scale: number;
-    printResolution: number;
-    dpi: number;
-    layout: string;
-    format: 'pdf' | 'jpg' | 'png';
-    customAttributes: Record<string, any>;
-    customizer: BaseCustomizer;
-}
-interface EncodeMapOptions {
+import VectorContext from 'ol/render/VectorContext';
+export interface EncodeMapOptions {
     map: Map;
     scale: number;
     printResolution: number;
@@ -31,12 +23,6 @@ export default class MFPBaseEncoder {
      * @param printUrl The base URL to a mapfish print server / proxy
      */
     constructor(printUrl: string);
-    /**
-     * Introspect the map and convert each of its layers to Mapfish print v3 format.
-     * @param options
-     * @return a top level Mapfish print spec
-     */
-    createSpec(options: CreateSpecOptions): Promise<MFPSpec>;
     /**
      *
      * @param options
@@ -60,12 +46,31 @@ export default class MFPBaseEncoder {
      */
     encodeLayerState(layerState: State, printResolution: number, customizer: BaseCustomizer): Promise<MFPLayer[] | MFPLayer | null>;
     /**
+     * @returns An Encoded WMS Image layer from an Image Layer (high level method).
+     */
+    encodeImageLayerState(layerState: State, customizer: BaseCustomizer): MFPWmsLayer | null;
+    /**
+     * @returns An Encoded WMS Image layer from an Image WMS Source (high level method).
+     */
+    encodeImageWmsLayerState(layerState: State, customizer: BaseCustomizer): MFPWmsLayer;
+    /**
+     * @returns An Encoded WMS Image layer from an Image WMS Source.
+     */
+    encodeWmsLayerState(layerState: State, url: string, params: any, customizer: BaseCustomizer): MFPWmsLayer;
+    /**
      * Encodes a tile layerState (high level method)
      * @param layerState
      * @param customizer
      * @return a spec fragment
      */
-    encodeTileLayerState(layerState: State, customizer: BaseCustomizer): MFPOSMLayer | MFPWmtsLayer;
+    encodeTileLayerState(layerState: State, customizer: BaseCustomizer): MFPOSMLayer | MFPWmtsLayer | MFPWmsLayer | null;
+    /**
+     * Encodes a tiled WMS layerState as a MFPWmsLayer
+     * @param layerState
+     * @param customizer
+     * @return a spec fragment
+     */
+    encodeTileWmsLayerState(layerState: State, customizer: BaseCustomizer): MFPWmsLayer;
     /**
      * Encodes an OSM layerState
      * @param layerState
@@ -79,7 +84,14 @@ export default class MFPBaseEncoder {
      * @param customizer
      * @return a spec fragment
      */
-    encodeTileWmtsLayer(layerState: State, customizer: BaseCustomizer): MFPWmtsLayer;
+    encodeTileWmtsLayerState(layerState: State, customizer: BaseCustomizer): MFPWmtsLayer;
+    /**
+     * @param layerState An MVT layer state
+     * @param printResolution
+     * @param customizer
+     * @return a spec fragment
+     */
+    encodeMVTLayerState(layerState: State, printResolution: number, customizer: BaseCustomizer): Promise<MFPLayer[] | MFPLayer | null>;
     /**
      * Encodes Image layerState.
      * @param layerState
@@ -87,7 +99,6 @@ export default class MFPBaseEncoder {
      * @param customizer
      * @return a spec file
      */
-    encodeAsImageLayer(layerState: State, resolution: number, customizer: BaseCustomizer): Promise<MFPImageLayer>;
+    encodeAsImageLayer(layerState: State, resolution: number, customizer: BaseCustomizer, additionalDraw: (cir: VectorContext, geometry: Geometry) => void): Promise<MFPImageLayer>;
 }
-export {};
 //# sourceMappingURL=MFPEncoder.d.ts.map

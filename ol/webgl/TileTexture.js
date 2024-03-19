@@ -2,12 +2,11 @@
  * @module ol/webgl/TileTexture
  */
 
+import BaseTileRepresentation from './BaseTileRepresentation.js';
 import DataTile, {asArrayLike, asImageLike} from '../DataTile.js';
-import EventTarget from '../events/Target.js';
 import EventType from '../events/EventType.js';
 import ImageTile from '../ImageTile.js';
 import ReprojTile from '../reproj/Tile.js';
-import TileState from '../TileState.js';
 import WebGLArrayBuffer from './Buffer.js';
 import {ARRAY_BUFFER, STATIC_DRAW} from '../webgl.js';
 import {createCanvasContext2D} from '../dom.js';
@@ -53,7 +52,7 @@ function uploadDataTexture(
   data,
   size,
   bandCount,
-  interpolate
+  interpolate,
 ) {
   const gl = helper.getGL();
   let textureType;
@@ -113,7 +112,7 @@ function uploadDataTexture(
     0,
     format,
     textureType,
-    data
+    data,
   );
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, oldUnpackAlignment);
 }
@@ -134,55 +133,32 @@ function createPixelContext() {
  */
 
 /**
- * @typedef {Object} Options
- * @property {TileType} tile The tile.
- * @property {import("../tilegrid/TileGrid.js").default} grid Tile grid.
- * @property {import("../webgl/Helper.js").default} helper WebGL helper.
- * @property {number} [gutter=0] The size in pixels of the gutter around image tiles to ignore.
+ * @extends {BaseTileRepresentation<TileType>}
  */
-
-class TileTexture extends EventTarget {
+class TileTexture extends BaseTileRepresentation {
   /**
-   * @param {Options} options The tile texture options.
+   * @param {import("./BaseTileRepresentation.js").TileRepresentationOptions<TileType>} options The tile texture options.
    */
   constructor(options) {
-    super();
-
-    /**
-     * @type {TileType}
-     */
-    this.tile;
+    super(options);
 
     /**
      * @type {Array<WebGLTexture>}
      */
     this.textures = [];
-    this.handleTileChange_ = this.handleTileChange_.bind(this);
 
     /**
      * @type {import("../size.js").Size}
      * @private
      */
     this.renderSize_ = toSize(
-      options.grid.getTileSize(options.tile.tileCoord[0])
+      options.grid.getTileSize(options.tile.tileCoord[0]),
     );
-
-    /**
-     * @type {number}
-     * @private
-     */
-    this.gutter_ = options.gutter || 0;
 
     /**
      * @type {number}
      */
     this.bandCount = NaN;
-
-    /**
-     * @type {import("../webgl/Helper.js").default}
-     * @private
-     */
-    this.helper_ = options.helper;
 
     const coords = new WebGLArrayBuffer(ARRAY_BUFFER, STATIC_DRAW);
     coords.fromArray([
@@ -205,35 +181,12 @@ class TileTexture extends EventTarget {
     this.setTile(options.tile);
   }
 
-  /**
-   * @param {TileType} tile Tile.
-   */
-  setTile(tile) {
-    if (tile !== this.tile) {
-      if (this.tile) {
-        this.tile.removeEventListener(EventType.CHANGE, this.handleTileChange_);
-      }
-      this.tile = tile;
-      this.textures.length = 0;
-      this.loaded = tile.getState() === TileState.LOADED;
-      if (this.loaded) {
-        this.uploadTile_();
-      } else {
-        if (tile instanceof ImageTile) {
-          const image = tile.getImage();
-          if (image instanceof Image && !image.crossOrigin) {
-            image.crossOrigin = 'anonymous';
-          }
-        }
-        tile.addEventListener(EventType.CHANGE, this.handleTileChange_);
-      }
-    }
-  }
-
-  uploadTile_() {
+  uploadTile() {
     const helper = this.helper_;
     const gl = helper.getGL();
     const tile = this.tile;
+
+    this.textures.length = 0;
 
     /**
      * @type {import("../DataTile.js").Data}
@@ -252,6 +205,7 @@ class TileTexture extends EventTarget {
       this.textures.push(texture);
       this.bandCount = 4;
       uploadImageTexture(gl, texture, image, tile.interpolate);
+      this.setReady();
       return;
     }
 
@@ -280,8 +234,9 @@ class TileTexture extends EventTarget {
         data,
         pixelSize,
         this.bandCount,
-        tile.interpolate
+        tile.interpolate,
       );
+      this.setReady();
       return;
     }
 
@@ -325,17 +280,11 @@ class TileTexture extends EventTarget {
         textureData,
         pixelSize,
         bandCount,
-        tile.interpolate
+        tile.interpolate,
       );
     }
-  }
 
-  handleTileChange_() {
-    if (this.tile.getState() === TileState.LOADED) {
-      this.loaded = true;
-      this.uploadTile_();
-      this.dispatchEvent(EventType.CHANGE);
-    }
+    this.setReady();
   }
 
   disposeInternal() {
@@ -444,7 +393,7 @@ class TileTexture extends EventTarget {
           arrayData,
           sourceSize,
           renderCol,
-          renderRow
+          renderRow,
         );
       }
       return this.getImagePixelData_(asImageLike(data), renderCol, renderRow);

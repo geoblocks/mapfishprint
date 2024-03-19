@@ -9,8 +9,8 @@ export function computeAttributesStride(attributes: Array<AttributeDescription>)
  */
 export type ShaderType = number;
 export namespace ShaderType {
-    const FRAGMENT_SHADER: number;
-    const VERTEX_SHADER: number;
+    let FRAGMENT_SHADER: number;
+    let VERTEX_SHADER: number;
 }
 /**
  * Names of uniforms made available to all shaders.
@@ -18,14 +18,15 @@ export namespace ShaderType {
  */
 export type DefaultUniform = string;
 export namespace DefaultUniform {
-    const PROJECTION_MATRIX: string;
-    const OFFSET_SCALE_MATRIX: string;
-    const OFFSET_ROTATION_MATRIX: string;
-    const TIME: string;
-    const ZOOM: string;
-    const RESOLUTION: string;
-    const SIZE_PX: string;
-    const PIXEL_RATIO: string;
+    let PROJECTION_MATRIX: string;
+    let SCREEN_TO_WORLD_MATRIX: string;
+    let TIME: string;
+    let ZOOM: string;
+    let RESOLUTION: string;
+    let ROTATION: string;
+    let VIEWPORT_SIZE_PX: string;
+    let PIXEL_RATIO: string;
+    let HIT_DETECTION: string;
 }
 /**
  * Attribute types, either `UNSIGNED_BYTE`, `UNSIGNED_SHORT`, `UNSIGNED_INT` or `FLOAT`
@@ -68,7 +69,7 @@ export type AttributeDescription = {
      */
     type?: number | undefined;
 };
-export type UniformLiteralValue = number | Array<number> | HTMLCanvasElement | HTMLImageElement | ImageData | import("../transform").Transform;
+export type UniformLiteralValue = number | Array<number> | HTMLCanvasElement | HTMLImageElement | ImageData | WebGLTexture | import("../transform").Transform;
 /**
  * Uniform value can be a number, array of numbers (2 to 4), canvas element or a callback returning
  * one of the previous types.
@@ -132,18 +133,18 @@ export type UniformInternalDescription = {
 };
 export type CanvasCacheItem = {
     /**
-     * Canvas element.
+     * The context of this canvas.
      */
-    canvas: HTMLCanvasElement;
+    context: WebGLRenderingContext;
     /**
      * The count of users of this canvas.
      */
     users: number;
 };
-import { UNSIGNED_BYTE } from "../webgl.js";
-import { UNSIGNED_SHORT } from "../webgl.js";
-import { UNSIGNED_INT } from "../webgl.js";
-import { FLOAT } from "../webgl.js";
+import { UNSIGNED_BYTE } from '../webgl.js';
+import { UNSIGNED_SHORT } from '../webgl.js';
+import { UNSIGNED_INT } from '../webgl.js';
+import { FLOAT } from '../webgl.js';
 /**
  * @classdesc
  * This class is intended to provide low-level functions related to WebGL rendering, so that accessing
@@ -284,11 +285,6 @@ declare class WebGLHelper extends Disposable {
     private canvasCacheKey_;
     /**
      * @private
-     * @type {HTMLCanvasElement}
-     */
-    private canvas_;
-    /**
-     * @private
      * @type {WebGLRenderingContext}
      */
     private gl_;
@@ -309,6 +305,11 @@ declare class WebGLHelper extends Disposable {
     private currentProgram_;
     /**
      * @private
+     * @type boolean
+     */
+    private needsToBeRecreated_;
+    /**
+     * @private
      * @type {import("../transform.js").Transform}
      */
     private offsetRotateMatrix_;
@@ -324,14 +325,14 @@ declare class WebGLHelper extends Disposable {
     private tmpMat4_;
     /**
      * @private
-     * @type {Object<string, WebGLUniformLocation>}
+     * @type {Object<string, Object<string, WebGLUniformLocation>>}
      */
-    private uniformLocations_;
+    private uniformLocationsByProgram_;
     /**
      * @private
-     * @type {Object<string, number>}
+     * @type {Object<string, Object<string, number>>}
      */
-    private attribLocations_;
+    private attribLocationsByProgram_;
     /**
      * Holds info about custom uniforms used in the post processing pass.
      * If the uniform is a texture, the WebGL Texture object will be stored here.
@@ -361,6 +362,12 @@ declare class WebGLHelper extends Disposable {
      * @param {Object<string, UniformValue>} uniforms Uniform definitions.
      */
     setUniforms(uniforms: {
+        [x: string]: UniformValue;
+    }): void;
+    /**
+     * @param {Object<string, UniformValue>} uniforms Uniform definitions.
+     */
+    addUniforms(uniforms: {
         [x: string]: UniformValue;
     }): void;
     /**
@@ -398,8 +405,16 @@ declare class WebGLHelper extends Disposable {
      * subsequent draw calls.
      * @param {import("../Map.js").FrameState} frameState current frame state
      * @param {boolean} [disableAlphaBlend] If true, no alpha blending will happen.
+     * @param {boolean} [enableDepth] If true, enables depth testing.
      */
-    prepareDraw(frameState: import("../Map.js").FrameState, disableAlphaBlend?: boolean | undefined): void;
+    prepareDraw(frameState: import("../Map.js").FrameState, disableAlphaBlend?: boolean | undefined, enableDepth?: boolean | undefined): void;
+    /**
+     * Prepare a program to use a texture.
+     * @param {WebGLTexture} texture The texture.
+     * @param {number} slot The texture slot.
+     * @param {string} uniformName The corresponding uniform name.
+     */
+    bindTexture(texture: WebGLTexture, slot: number, uniformName: string): void;
     /**
      * Clear the render target & bind it for future draw operations.
      * This is similar to `prepareDraw`, only post processes will not be applied.
@@ -407,8 +422,9 @@ declare class WebGLHelper extends Disposable {
      * @param {import("../Map.js").FrameState} frameState current frame state
      * @param {import("./RenderTarget.js").default} renderTarget Render target to draw to
      * @param {boolean} [disableAlphaBlend] If true, no alpha blending will happen.
+     * @param {boolean} [enableDepth] If true, enables depth testing.
      */
-    prepareDrawToRenderTarget(frameState: import("../Map.js").FrameState, renderTarget: import("./RenderTarget.js").default, disableAlphaBlend?: boolean | undefined): void;
+    prepareDrawToRenderTarget(frameState: import("../Map.js").FrameState, renderTarget: import("./RenderTarget.js").default, disableAlphaBlend?: boolean | undefined, enableDepth?: boolean | undefined): void;
     /**
      * Execute a draw call based on the currently bound program, texture, buffers, attributes.
      * @param {number} start Start index.
@@ -436,6 +452,11 @@ declare class WebGLHelper extends Disposable {
      * @param {import("../Map.js").FrameState} frameState Frame state.
      */
     applyFrameState(frameState: import("../Map.js").FrameState): void;
+    /**
+     * Sets the `u_hitDetection` uniform.
+     * @param {boolean} enabled Whether to enable the hit detection code path
+     */
+    applyHitDetectionUniform(enabled: boolean): void;
     /**
      * Sets the custom uniforms based on what was given in the constructor. This is called internally in `prepareDraw`.
      * @param {import("../Map.js").FrameState} frameState Frame state.
@@ -478,8 +499,8 @@ declare class WebGLHelper extends Disposable {
      */
     getAttributeLocation(name: string): number;
     /**
-     * Modifies the given transform to apply the rotation/translation/scaling of the given frame state.
-     * The resulting transform can be used to convert world space coordinates to view coordinates.
+     * Sets the given transform to apply the rotation/translation/scaling of the given frame state.
+     * The resulting transform can be used to convert world space coordinates to view coordinates in the [-1, 1] range.
      * @param {import("../Map.js").FrameState} frameState Frame state.
      * @param {import("../transform").Transform} transform Transform to update.
      * @return {import("../transform").Transform} The updated transform object.
@@ -529,6 +550,7 @@ declare class WebGLHelper extends Disposable {
     enableAttributes(attributes: Array<AttributeDescription>): void;
     /**
      * WebGL context was lost
+     * @param {WebGLContextEvent} event The context loss event.
      * @private
      */
     private handleWebGLContextLost;
@@ -537,6 +559,11 @@ declare class WebGLHelper extends Disposable {
      * @private
      */
     private handleWebGLContextRestored;
+    /**
+     * Returns whether this helper needs to be recreated, as the context was lost and then restored.
+     * @return {boolean} Whether this helper needs to be recreated.
+     */
+    needsToBeRecreated(): boolean;
     /**
      * Will create or reuse a given webgl texture and apply the given size. If no image data
      * specified, the texture will be empty, otherwise image data will be used and the `size`
@@ -549,5 +576,5 @@ declare class WebGLHelper extends Disposable {
      */
     createTexture(size: Array<number>, data?: HTMLCanvasElement | HTMLImageElement | ImageData | undefined, texture?: WebGLTexture | undefined): WebGLTexture;
 }
-import Disposable from "../Disposable.js";
+import Disposable from '../Disposable.js';
 //# sourceMappingURL=Helper.d.ts.map

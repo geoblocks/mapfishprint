@@ -36,7 +36,7 @@ const FEATURE_COLLECTION_PARSERS = {
   'http://www.opengis.net/gml': {
     'boundedBy': makeObjectPropertySetter(
       GMLBase.prototype.readExtentElement,
-      'bounds'
+      'bounds',
     ),
   },
   'http://www.opengis.net/wfs/2.0': {
@@ -69,14 +69,14 @@ const TRANSACTION_RESPONSE_PARSERS = {
   'http://www.opengis.net/wfs': {
     'TransactionSummary': makeObjectPropertySetter(
       readTransactionSummary,
-      'transactionSummary'
+      'transactionSummary',
     ),
     'InsertResults': makeObjectPropertySetter(readInsertResults, 'insertIds'),
   },
   'http://www.opengis.net/wfs/2.0': {
     'TransactionSummary': makeObjectPropertySetter(
       readTransactionSummary,
-      'transactionSummary'
+      'transactionSummary',
     ),
     'InsertResults': makeObjectPropertySetter(readInsertResults, 'insertIds'),
   },
@@ -182,11 +182,16 @@ const TRANSACTION_SERIALIZERS = {
  */
 
 /**
- * Total deleted; total inserted; total updated; array of insert ids.
- * @typedef {Object} TransactionResponse
+ * @typedef {Object} TransactionSummary
  * @property {number} totalDeleted TotalDeleted.
  * @property {number} totalInserted TotalInserted.
  * @property {number} totalUpdated TotalUpdated.
+ */
+
+/**
+ * Total deleted; total inserted; total updated; array of insert ids.
+ * @typedef {Object} TransactionResponse
+ * @property {TransactionSummary} transactionSummary Transaction summary.
  * @property {Array<string>} insertIds InsertIds.
  */
 
@@ -350,7 +355,7 @@ class WFS extends XMLFeature {
       featuresNS,
       node,
       objectStack,
-      this.gmlFormat_
+      this.gmlFormat_,
     );
     if (!features) {
       features = [];
@@ -368,16 +373,18 @@ class WFS extends XMLFeature {
   readTransactionResponse(source) {
     if (!source) {
       return undefined;
-    } else if (typeof source === 'string') {
+    }
+    if (typeof source === 'string') {
       const doc = parse(source);
       return this.readTransactionResponseFromDocument(doc);
-    } else if (isDocument(source)) {
+    }
+    if (isDocument(source)) {
       return this.readTransactionResponseFromDocument(
-        /** @type {Document} */ (source)
+        /** @type {Document} */ (source),
       );
     }
     return this.readTransactionResponseFromNode(
-      /** @type {Element} */ (source)
+      /** @type {Element} */ (source),
     );
   }
 
@@ -392,16 +399,18 @@ class WFS extends XMLFeature {
   readFeatureCollectionMetadata(source) {
     if (!source) {
       return undefined;
-    } else if (typeof source === 'string') {
+    }
+    if (typeof source === 'string') {
       const doc = parse(source);
       return this.readFeatureCollectionMetadataFromDocument(doc);
-    } else if (isDocument(source)) {
+    }
+    if (isDocument(source)) {
       return this.readFeatureCollectionMetadataFromDocument(
-        /** @type {Document} */ (source)
+        /** @type {Document} */ (source),
       );
     }
     return this.readFeatureCollectionMetadataFromNode(
-      /** @type {Element} */ (source)
+      /** @type {Element} */ (source),
     );
   }
 
@@ -414,7 +423,7 @@ class WFS extends XMLFeature {
     for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
       if (n.nodeType == Node.ELEMENT_NODE) {
         return this.readFeatureCollectionMetadataFromNode(
-          /** @type {Element} */ (n)
+          /** @type {Element} */ (n),
         );
       }
     }
@@ -429,7 +438,7 @@ class WFS extends XMLFeature {
   readFeatureCollectionMetadataFromNode(node) {
     const result = {};
     const value = readNonNegativeIntegerString(
-      node.getAttribute('numberOfFeatures')
+      node.getAttribute('numberOfFeatures'),
     );
     result['numberOfFeatures'] = value;
     return pushParseAndPop(
@@ -437,7 +446,7 @@ class WFS extends XMLFeature {
       FEATURE_COLLECTION_PARSERS,
       node,
       [],
-      this.gmlFormat_
+      this.gmlFormat_,
     );
   }
 
@@ -463,7 +472,7 @@ class WFS extends XMLFeature {
       /** @type {TransactionResponse} */ ({}),
       TRANSACTION_RESPONSE_PARSERS,
       node,
-      []
+      [],
     );
   }
 
@@ -502,7 +511,7 @@ class WFS extends XMLFeature {
     node.setAttributeNS(
       XML_SCHEMA_INSTANCE_URI,
       'xsi:schemaLocation',
-      this.schemaLocation_
+      this.schemaLocation_,
     );
     /** @type {import("../xml.js").NodeStackItem} */
     const context = {
@@ -515,16 +524,22 @@ class WFS extends XMLFeature {
       'featurePrefix': options.featurePrefix,
       'propertyNames': options.propertyNames ? options.propertyNames : [],
     });
-    assert(Array.isArray(options.featureTypes), 11); // `options.featureTypes` must be an Array
+    assert(
+      Array.isArray(options.featureTypes),
+      '`options.featureTypes` must be an Array',
+    );
     if (typeof options.featureTypes[0] === 'string') {
       let filter = options.filter;
       if (options.bbox) {
-        assert(options.geometryName, 12); // `options.geometryName` must also be provided when `options.bbox` is set
+        assert(
+          options.geometryName,
+          '`options.geometryName` must also be provided when `options.bbox` is set',
+        );
         filter = this.combineBboxAndFilter(
           options.geometryName,
           options.bbox,
           options.srsName,
-          filter
+          filter,
         );
       }
       Object.assign(context, {
@@ -534,7 +549,7 @@ class WFS extends XMLFeature {
       writeGetFeature(
         node,
         /** @type {!Array<string>} */ (options.featureTypes),
-        [context]
+        [context],
       );
     } else {
       // Write one query node per element in featuresType.
@@ -543,7 +558,7 @@ class WFS extends XMLFeature {
           featureType.geometryName,
           featureType.bbox,
           options.srsName,
-          options.filter
+          options.filter,
         );
         Object.assign(context, {
           'geometryName': featureType.geometryName,
@@ -602,7 +617,7 @@ class WFS extends XMLFeature {
     node.setAttributeNS(
       XML_SCHEMA_INSTANCE_URI,
       'xsi:schemaLocation',
-      SCHEMA_LOCATIONS[version]
+      SCHEMA_LOCATIONS[version],
     );
 
     const request = createTransactionRequest(node, baseObj, version, options);
@@ -620,7 +635,7 @@ class WFS extends XMLFeature {
         'Native',
         options.nativeElements,
         objectStack,
-        request
+        request,
       );
     }
     return node;
@@ -694,7 +709,7 @@ function createTransactionRequest(node, baseObj, version, options) {
       'hasZ': options.hasZ,
       'srsName': options.srsName,
     },
-    baseObj
+    baseObj,
   );
   return obj;
 }
@@ -711,7 +726,7 @@ function serializeTransactionRequest(type, features, objectStack, request) {
     TRANSACTION_SERIALIZERS,
     makeSimpleNodeFactory(type),
     features,
-    objectStack
+    objectStack,
   );
 }
 
@@ -830,7 +845,7 @@ function getTypeName(featurePrefix, featureType) {
  */
 function writeDelete(node, feature, objectStack) {
   const context = objectStack[objectStack.length - 1];
-  assert(feature.getId() !== undefined, 26); // Features must have an id set
+  assert(feature.getId() !== undefined, 'Features must have an id set');
   const featureType = context['featureType'];
   const featurePrefix = context['featurePrefix'];
   const featureNS = context['featureNS'];
@@ -850,7 +865,7 @@ function writeDelete(node, feature, objectStack) {
  */
 function writeUpdate(node, feature, objectStack) {
   const context = objectStack[objectStack.length - 1];
-  assert(feature.getId() !== undefined, 27); // Features must have an id set
+  assert(feature.getId() !== undefined, 'Features must have an id set');
   const version = context['version'];
   const featureType = context['featureType'];
   const featurePrefix = context['featurePrefix'];
@@ -887,7 +902,7 @@ function writeUpdate(node, feature, objectStack) {
       TRANSACTION_SERIALIZERS,
       makeSimpleNodeFactory('Property'),
       values,
-      objectStack
+      objectStack,
     );
     writeOgcFidFilter(node, fid, objectStack);
   }
@@ -902,7 +917,8 @@ function writeProperty(node, pair, objectStack) {
   const context = objectStack[objectStack.length - 1];
   const version = context['version'];
   const ns = WFSNS[version];
-  const name = createElementNS(ns, 'Name');
+  const tagName = version === '2.0.0' ? 'ValueReference' : 'Name';
+  const name = createElementNS(ns, tagName);
   const gmlVersion = context['gmlVersion'];
   node.appendChild(name);
   writeStringTextNode(name, pair.name);
@@ -1039,7 +1055,7 @@ function writeQuery(node, featureType, objectStack) {
     QUERY_SERIALIZERS,
     makeSimpleNodeFactory('PropertyName'),
     propertyNames,
-    objectStack
+    objectStack,
   );
   const filter = context['filter'];
   if (filter) {
@@ -1064,7 +1080,7 @@ function writeFilterCondition(node, filter, objectStack) {
     GETFEATURE_SERIALIZERS,
     makeSimpleNodeFactory(filter.getTagName()),
     [filter],
-    objectStack
+    objectStack,
   );
 }
 
@@ -1172,7 +1188,7 @@ function writeLogicalFilter(node, filter, objectStack) {
       GETFEATURE_SERIALIZERS,
       makeSimpleNodeFactory(condition.getTagName()),
       [condition],
-      objectStack
+      objectStack,
     );
   }
 }
@@ -1194,7 +1210,7 @@ function writeNotFilter(node, filter, objectStack) {
     GETFEATURE_SERIALIZERS,
     makeSimpleNodeFactory(condition.getTagName()),
     [condition],
-    objectStack
+    objectStack,
   );
 }
 
@@ -1352,7 +1368,7 @@ function writeGetFeature(node, featureTypes, objectStack) {
     GETFEATURE_SERIALIZERS,
     makeSimpleNodeFactory('Query'),
     featureTypes,
-    objectStack
+    objectStack,
   );
 }
 

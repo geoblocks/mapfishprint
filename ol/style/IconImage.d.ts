@@ -1,32 +1,31 @@
 /**
- * @param {HTMLImageElement|HTMLCanvasElement} image Image.
- * @param {string} src Src.
- * @param {import("../size.js").Size} size Size.
+ * @param {HTMLImageElement|HTMLCanvasElement|ImageBitmap|null} image Image.
+ * @param {string|undefined} cacheKey Src.
  * @param {?string} crossOrigin Cross origin.
- * @param {import("../ImageState.js").default} imageState Image state.
- * @param {import("../color.js").Color} color Color.
+ * @param {import("../ImageState.js").default|undefined} imageState Image state.
+ * @param {import("../color.js").Color|string|null} color Color.
+ * @param {boolean} [pattern] Also cache a `repeat` pattern with the icon image.
  * @return {IconImage} Icon image.
  */
-export function get(image: HTMLImageElement | HTMLCanvasElement, src: string, size: import("../size.js").Size, crossOrigin: string | null, imageState: any, color: import("../color.js").Color): IconImage;
+export function get(image: HTMLImageElement | HTMLCanvasElement | ImageBitmap | null, cacheKey: string | undefined, crossOrigin: string | null, imageState: any | undefined, color: import("../color.js").Color | string | null, pattern?: boolean | undefined): IconImage;
 export default IconImage;
 declare class IconImage extends EventTarget {
     /**
-     * @param {HTMLImageElement|HTMLCanvasElement} image Image.
+     * @param {HTMLImageElement|HTMLCanvasElement|ImageBitmap|null} image Image.
      * @param {string|undefined} src Src.
-     * @param {import("../size.js").Size} size Size.
      * @param {?string} crossOrigin Cross origin.
-     * @param {import("../ImageState.js").default} imageState Image state.
-     * @param {import("../color.js").Color} color Color.
+     * @param {import("../ImageState.js").default|undefined} imageState Image state.
+     * @param {import("../color.js").Color|string|null} color Color.
      */
-    constructor(image: HTMLImageElement | HTMLCanvasElement, src: string | undefined, size: import("../size.js").Size, crossOrigin: string | null, imageState: any, color: import("../color.js").Color);
+    constructor(image: HTMLImageElement | HTMLCanvasElement | ImageBitmap | null, src: string | undefined, crossOrigin: string | null, imageState: any | undefined, color: import("../color.js").Color | string | null);
     /**
      * @private
-     * @type {HTMLImageElement|HTMLCanvasElement}
+     * @type {HTMLImageElement|HTMLCanvasElement|ImageBitmap}
      */
     private hitDetectionImage_;
     /**
      * @private
-     * @type {HTMLImageElement|HTMLCanvasElement}
+     * @type {HTMLImageElement|HTMLCanvasElement|ImageBitmap|null}
      */
     private image_;
     /**
@@ -41,14 +40,9 @@ declare class IconImage extends EventTarget {
     private canvas_;
     /**
      * @private
-     * @type {import("../color.js").Color}
+     * @type {import("../color.js").Color|string|null}
      */
     private color_;
-    /**
-     * @private
-     * @type {?function():void}
-     */
-    private unlisten_;
     /**
      * @private
      * @type {import("../ImageState.js").default}
@@ -56,7 +50,7 @@ declare class IconImage extends EventTarget {
     private imageState_;
     /**
      * @private
-     * @type {import("../size.js").Size}
+     * @type {import("../size.js").Size|null}
      */
     private size_;
     /**
@@ -64,6 +58,11 @@ declare class IconImage extends EventTarget {
      * @type {string|undefined}
      */
     private src_;
+    /**
+     * @private
+     * @type {Promise<void>|null}
+     */
+    private ready_;
     /**
      * @private
      */
@@ -88,9 +87,9 @@ declare class IconImage extends EventTarget {
     private handleImageLoad_;
     /**
      * @param {number} pixelRatio Pixel ratio.
-     * @return {HTMLImageElement|HTMLCanvasElement} Image or Canvas element.
+     * @return {HTMLImageElement|HTMLCanvasElement|ImageBitmap} Image or Canvas element or image bitmap.
      */
-    getImage(pixelRatio: number): HTMLImageElement | HTMLCanvasElement;
+    getImage(pixelRatio: number): HTMLImageElement | HTMLCanvasElement | ImageBitmap;
     /**
      * @param {number} pixelRatio Pixel ratio.
      * @return {number} Image or Canvas element.
@@ -101,9 +100,9 @@ declare class IconImage extends EventTarget {
      */
     getImageState(): any;
     /**
-     * @return {HTMLImageElement|HTMLCanvasElement} Image element.
+     * @return {HTMLImageElement|HTMLCanvasElement|ImageBitmap} Image element.
      */
-    getHitDetectionImage(): HTMLImageElement | HTMLCanvasElement;
+    getHitDetectionImage(): HTMLImageElement | HTMLCanvasElement | ImageBitmap;
     /**
      * Get the size of the icon (in pixels).
      * @return {import("../size.js").Size} Image size.
@@ -123,11 +122,9 @@ declare class IconImage extends EventTarget {
      */
     private replaceColor_;
     /**
-     * Discards event handlers which listen for load completion or errors.
-     *
-     * @private
+     * @return {Promise<void>} Promise that resolves when the image is loaded.
      */
-    private unlistenImage_;
+    ready(): Promise<void>;
 }
-import EventTarget from "../events/Target.js";
+import EventTarget from '../events/Target.js';
 //# sourceMappingURL=IconImage.d.ts.map

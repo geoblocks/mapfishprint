@@ -101,10 +101,10 @@ export type Options = {
      */
     iconUrlFunction?: IconUrlFunction | undefined;
 };
-import Fill from "../style/Fill.js";
-import Stroke from "../style/Stroke.js";
-import Text from "../style/Text.js";
-import Style from "../style/Style.js";
+import Fill from '../style/Fill.js';
+import Stroke from '../style/Stroke.js';
+import Text from '../style/Text.js';
+import Style from '../style/Style.js';
 /**
  * @typedef {Object} Options
  * @property {boolean} [extractStyles=true] Extract styles from the KML.
@@ -135,10 +135,6 @@ declare class KML extends XMLFeature {
      * @param {Options} [options] Options.
      */
     constructor(options?: Options | undefined);
-    /**
-     * @type {import("../proj/Projection.js").default}
-     */
-    dataProjection: import("../proj/Projection.js").default;
     /**
      * @private
      * @type {Array<Style>}
@@ -252,6 +248,122 @@ declare class KML extends XMLFeature {
      * @api
      */
     readRegionFromNode(node: Element): Array<any>;
+    /**
+     * @typedef {Object} KMLCamera Specifies the observer's viewpoint and associated view parameters.
+     * @property {number} [Latitude] Latitude of the camera.
+     * @property {number} [Longitude] Longitude of the camera.
+     * @property {number} [Altitude] Altitude of the camera.
+     * @property {string} [AltitudeMode] Floor-related altitude mode.
+     * @property {number} [Heading] Horizontal camera rotation.
+     * @property {number} [Tilt] Lateral camera rotation.
+     * @property {number} [Roll] Vertical camera rotation.
+     */
+    /**
+     * Read the cameras of the KML.
+     *
+     * @param {Document|Element|string} source Source.
+     * @return {Array<KMLCamera>} Cameras.
+     * @api
+     */
+    readCamera(source: Document | Element | string): {
+        /**
+         * Latitude of the camera.
+         */
+        Latitude?: number | undefined;
+        /**
+         * Longitude of the camera.
+         */
+        Longitude?: number | undefined;
+        /**
+         * Altitude of the camera.
+         */
+        Altitude?: number | undefined;
+        /**
+         * Floor-related altitude mode.
+         */
+        AltitudeMode?: string | undefined;
+        /**
+         * Horizontal camera rotation.
+         */
+        Heading?: number | undefined;
+        /**
+         * Lateral camera rotation.
+         */
+        Tilt?: number | undefined;
+        /**
+         * Vertical camera rotation.
+         */
+        Roll?: number | undefined;
+    }[];
+    /**
+     * @param {Document} doc Document.
+     * @return {Array<KMLCamera>} Cameras.
+     */
+    readCameraFromDocument(doc: Document): {
+        /**
+         * Latitude of the camera.
+         */
+        Latitude?: number | undefined;
+        /**
+         * Longitude of the camera.
+         */
+        Longitude?: number | undefined;
+        /**
+         * Altitude of the camera.
+         */
+        Altitude?: number | undefined;
+        /**
+         * Floor-related altitude mode.
+         */
+        AltitudeMode?: string | undefined;
+        /**
+         * Horizontal camera rotation.
+         */
+        Heading?: number | undefined;
+        /**
+         * Lateral camera rotation.
+         */
+        Tilt?: number | undefined;
+        /**
+         * Vertical camera rotation.
+         */
+        Roll?: number | undefined;
+    }[];
+    /**
+     * @param {Element} node Node.
+     * @return {Array<KMLCamera>} Cameras.
+     * @api
+     */
+    readCameraFromNode(node: Element): {
+        /**
+         * Latitude of the camera.
+         */
+        Latitude?: number | undefined;
+        /**
+         * Longitude of the camera.
+         */
+        Longitude?: number | undefined;
+        /**
+         * Altitude of the camera.
+         */
+        Altitude?: number | undefined;
+        /**
+         * Floor-related altitude mode.
+         */
+        AltitudeMode?: string | undefined;
+        /**
+         * Horizontal camera rotation.
+         */
+        Heading?: number | undefined;
+        /**
+         * Lateral camera rotation.
+         */
+        Tilt?: number | undefined;
+        /**
+         * Vertical camera rotation.
+         */
+        Roll?: number | undefined;
+    }[];
 }
-import XMLFeature from "./XMLFeature.js";
+import XMLFeature from './XMLFeature.js';
 //# sourceMappingURL=KML.d.ts.map

@@ -218,7 +218,7 @@ export function getPointResolution(projection, resolution, point, units) {
       // average of the width and height.
       const toEPSG4326 = getTransformFromProjections(
         projection,
-        get('EPSG:4326')
+        get('EPSG:4326'),
       );
       if (toEPSG4326 === identityTransform && projUnits !== 'degrees') {
         // no transform is available
@@ -285,7 +285,7 @@ export function addEquivalentTransforms(
   projections1,
   projections2,
   forwardTransform,
-  inverseTransform
+  inverseTransform,
 ) {
   projections1.forEach(function (projection1) {
     projections2.forEach(function (projection2) {
@@ -311,7 +311,8 @@ export function clearAllProjections() {
 export function createProjection(projection, defaultCode) {
   if (!projection) {
     return get(defaultCode);
-  } else if (typeof projection === 'string') {
+  }
+  if (typeof projection === 'string') {
     return get(projection);
   }
   return /** @type {Projection} */ (projection);
@@ -376,12 +377,12 @@ export function addCoordinateTransforms(source, destination, forward, inverse) {
   addTransformFunc(
     sourceProj,
     destProj,
-    createTransformFromCoordinateTransform(forward)
+    createTransformFromCoordinateTransform(forward),
   );
   addTransformFunc(
     destProj,
     sourceProj,
-    createTransformFromCoordinateTransform(inverse)
+    createTransformFromCoordinateTransform(inverse),
   );
 }
 
@@ -399,7 +400,7 @@ export function fromLonLat(coordinate, projection) {
   return transform(
     coordinate,
     'EPSG:4326',
-    projection !== undefined ? projection : 'EPSG:3857'
+    projection !== undefined ? projection : 'EPSG:3857',
   );
 }
 
@@ -416,7 +417,7 @@ export function toLonLat(coordinate, projection) {
   const lonLat = transform(
     coordinate,
     projection !== undefined ? projection : 'EPSG:3857',
-    'EPSG:4326'
+    'EPSG:4326',
   );
   const lon = lonLat[0];
   if (lon < -180 || lon > 180) {
@@ -458,7 +459,7 @@ export function equivalent(projection1, projection2) {
  */
 export function getTransformFromProjections(
   sourceProjection,
-  destinationProjection
+  destinationProjection,
 ) {
   const sourceCode = sourceProjection.getCode();
   const destinationCode = destinationProjection.getCode();
@@ -532,11 +533,11 @@ export function transformExtent(extent, source, destination, stops) {
 export function transformWithProjections(
   point,
   sourceProjection,
-  destinationProjection
+  destinationProjection,
 ) {
   const transformFunc = getTransformFromProjections(
     sourceProjection,
-    destinationProjection
+    destinationProjection,
   );
   return transformFunc(point);
 }
@@ -548,7 +549,8 @@ let userProjection = null;
 
 /**
  * Set the projection for coordinates supplied from and returned by API methods.
- * This includes all API methods except for those interacting with tile grids.
+ * This includes all API methods except for those interacting with tile grids,
+ * plus {@link import("./Map.js").FrameState} and {@link import("./View.js").State}.
  * @param {ProjectionLike} projection The user projection.
  * @api
  */
@@ -566,8 +568,6 @@ export function clearUserProjection() {
 
 /**
  * Get the projection for coordinates supplied from and returned by API methods.
- * Note that this method is not yet a part of the stable API.  Support for user
- * projections is not yet complete and should be considered experimental.
  * @return {Projection|null} The user projection (or null if not set).
  * @api
  */
@@ -576,8 +576,9 @@ export function getUserProjection() {
 }
 
 /**
- * Use geographic coordinates (WGS-84 datum) in API methods.  This includes all API
- * methods except for those interacting with tile grids.
+ * Use geographic coordinates (WGS-84 datum) in API methods.
+ * This includes all API methods except for those interacting with tile grids,
+ * plus {@link import("./Map.js").FrameState} and {@link import("./View.js").State}.
  * @api
  */
 export function useGeographic() {
@@ -617,7 +618,7 @@ export function fromUserCoordinate(coordinate, destProjection) {
     ) {
       showCoordinateWarning = false;
       warn(
-        'Call useGeographic() from ol/proj once to work with [longitude, latitude] coordinates.'
+        'Call useGeographic() from ol/proj once to work with [longitude, latitude] coordinates.',
       );
     }
     return coordinate;
@@ -665,10 +666,10 @@ export function toUserResolution(resolution, sourceProjection) {
   if (!userProjection) {
     return resolution;
   }
-  const sourceUnits = get(sourceProjection).getUnits();
-  const userUnits = userProjection.getUnits();
-  return sourceUnits && userUnits
-    ? (resolution * METERS_PER_UNIT[sourceUnits]) / METERS_PER_UNIT[userUnits]
+  const sourceMetersPerUnit = get(sourceProjection).getMetersPerUnit();
+  const userMetersPerUnit = userProjection.getMetersPerUnit();
+  return sourceMetersPerUnit && userMetersPerUnit
+    ? (resolution * sourceMetersPerUnit) / userMetersPerUnit
     : resolution;
 }
 
@@ -684,10 +685,10 @@ export function fromUserResolution(resolution, destProjection) {
   if (!userProjection) {
     return resolution;
   }
-  const sourceUnits = get(destProjection).getUnits();
-  const userUnits = userProjection.getUnits();
-  return sourceUnits && userUnits
-    ? (resolution * METERS_PER_UNIT[userUnits]) / METERS_PER_UNIT[sourceUnits]
+  const destMetersPerUnit = get(destProjection).getMetersPerUnit();
+  const userMetersPerUnit = userProjection.getMetersPerUnit();
+  return destMetersPerUnit && userMetersPerUnit
+    ? (resolution * userMetersPerUnit) / destMetersPerUnit
     : resolution;
 }
 
@@ -698,8 +699,8 @@ export function fromUserResolution(resolution, destProjection) {
  * clamped to the validity range.
  * @param {Projection} sourceProj Source projection.
  * @param {Projection} destProj Destination projection.
- * @param {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} transform Transform function (source to destiation).
- * @return {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} Safe transform function (source to destiation).
+ * @param {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} transform Transform function (source to destination).
+ * @return {function(import("./coordinate.js").Coordinate): import("./coordinate.js").Coordinate} Safe transform function (source to destination).
  */
 export function createSafeCoordinateTransform(sourceProj, destProj, transform) {
   return function (coord) {
@@ -743,7 +744,7 @@ export function addCommon() {
     EPSG4326_PROJECTIONS,
     EPSG3857_PROJECTIONS,
     fromEPSG4326,
-    toEPSG4326
+    toEPSG4326,
   );
 }
 

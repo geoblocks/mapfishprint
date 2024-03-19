@@ -8,6 +8,7 @@ import InteractionProperty from './Property.js';
 import PointerInteraction from './Pointer.js';
 import {TRUE} from '../functions.js';
 import {always} from '../events/condition.js';
+import {fromUserCoordinate, getUserProjection} from '../proj.js';
 
 /**
  * @enum {string}
@@ -221,7 +222,7 @@ class Translate extends PointerInteraction {
 
     this.addChangeListener(
       InteractionProperty.ACTIVE,
-      this.handleActiveChanged_
+      this.handleActiveChanged_,
     );
   }
 
@@ -248,8 +249,8 @@ class Translate extends PointerInteraction {
           features,
           event.coordinate,
           this.startCoordinate_,
-          event
-        )
+          event,
+        ),
       );
       return true;
     }
@@ -274,8 +275,8 @@ class Translate extends PointerInteraction {
           features,
           event.coordinate,
           this.startCoordinate_,
-          event
-        )
+          event,
+        ),
       );
       // cleanup
       this.startCoordinate_ = null;
@@ -291,14 +292,28 @@ class Translate extends PointerInteraction {
   handleDragEvent(event) {
     if (this.lastCoordinate_) {
       const newCoordinate = event.coordinate;
-      const deltaX = newCoordinate[0] - this.lastCoordinate_[0];
-      const deltaY = newCoordinate[1] - this.lastCoordinate_[1];
+      const projection = event.map.getView().getProjection();
+
+      const newViewCoordinate = fromUserCoordinate(newCoordinate, projection);
+      const lastViewCoordinate = fromUserCoordinate(
+        this.lastCoordinate_,
+        projection,
+      );
+      const deltaX = newViewCoordinate[0] - lastViewCoordinate[0];
+      const deltaY = newViewCoordinate[1] - lastViewCoordinate[1];
 
       const features = this.features_ || new Collection([this.lastFeature_]);
+      const userProjection = getUserProjection();
 
       features.forEach(function (feature) {
         const geom = feature.getGeometry();
-        geom.translate(deltaX, deltaY);
+        if (userProjection) {
+          geom.transform(userProjection, projection);
+          geom.translate(deltaX, deltaY);
+          geom.transform(projection, userProjection);
+        } else {
+          geom.translate(deltaX, deltaY);
+        }
         feature.setGeometry(geom);
       });
 
@@ -310,8 +325,8 @@ class Translate extends PointerInteraction {
           features,
           newCoordinate,
           this.startCoordinate_,
-          event
-        )
+          event,
+        ),
       );
     }
   }
@@ -357,7 +372,7 @@ class Translate extends PointerInteraction {
       {
         layerFilter: this.layerFilter_,
         hitTolerance: this.hitTolerance_,
-      }
+      },
     );
   }
 

@@ -257,11 +257,12 @@ export default class VectorEncoder {
       }
     }
 
+    this.customizer_.feature(this.layerState_, geojsonFeature);
+
     if (hasSymbolizer) {
       if (!geojsonFeature.properties) {
         geojsonFeature.properties = {};
       }
-      this.customizer_.feature(this.layerState_, geojsonFeature);
       const existingStylesIds = geojsonFeature.properties[FEATURE_STYLE_PROP];
       if (existingStylesIds) {
         // multiple styles: merge symbolizers

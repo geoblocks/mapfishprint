@@ -21,9 +21,9 @@ import VectorTileLayer from 'ol/layer/VectorTile.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorEncoder from './VectorEncoder';
 import {toContext} from 'ol/render.js';
-import VectorSource from 'ol/source/Vector.js';
 import LayerGroup from 'ol/layer/Group';
 import VectorContext from 'ol/render/VectorContext';
+import type {Feature} from 'ol';
 
 export interface EncodeMapOptions {
   map: Map;
@@ -307,7 +307,7 @@ export default class MFPBaseEncoder {
     printResolution: number,
     customizer: BaseCustomizer,
   ): Promise<MFPLayer[] | MFPLayer | null> {
-    const layer = layerState.layer as VectorTileLayer;
+    const layer = layerState.layer as VectorTileLayer<Feature>;
     const {MVTEncoder} = await import('@geoblocks/print');
     const encoder = new MVTEncoder();
     const printExtent = customizer.getPrintExtent();
@@ -351,7 +351,7 @@ export default class MFPBaseEncoder {
     customizer: BaseCustomizer,
     additionalDraw: (cir: VectorContext, geometry: Geometry) => void,
   ): Promise<MFPImageLayer> {
-    const layer = layerState.layer as VectorLayer<VectorSource>;
+    const layer = layerState.layer as VectorLayer<Feature>;
     const printExtent = customizer.getPrintExtent();
     const width = getExtentWidth(printExtent) / resolution;
     const height = getExtentHeight(printExtent) / resolution;

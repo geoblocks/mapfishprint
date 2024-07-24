@@ -67,7 +67,7 @@ export default class BaseCustomizer {
    * @param symbolizer
    * @param stroke
    */
-  line(layerState: State, symbolizer: MFPSymbolizerLine, stroke: Stroke) {}
+  line(layerState: State, geojsonFeature: GeoJSONFeature, symbolizer: MFPSymbolizerLine, stroke: Stroke) {}
 
   /**
    * Can be used to manipulate the image symbolizers
@@ -75,7 +75,7 @@ export default class BaseCustomizer {
    * @param symbolizer
    * @param image
    */
-  point(layerState: State, symbolizer: MFPSymbolizerPoint, image: Image) {}
+  point(layerState: State, geojsonFeature: GeoJSONFeature, symbolizer: MFPSymbolizerPoint, image: Image) {}
 
   /**
    * Can be used to manipulate the text symbolizers
@@ -83,7 +83,7 @@ export default class BaseCustomizer {
    * @param symbolizer
    * @param text
    */
-  text(layerState: State, symbolizer: MFPSymbolizerText, text: Text) {}
+  text(layerState: State, geojsonFeature: GeoJSONFeature, symbolizer: MFPSymbolizerText, text: Text) {}
 
   /**
    * Can be used to manipulate a converted WMTS layer

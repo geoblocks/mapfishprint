@@ -49,7 +49,7 @@ export interface MFPSymbolizerText extends MFPSymbolizer, MFPFillStyle {
   type: 'text';
   fontColor: string;
   fontFamily: string;
-  fontSize: number;
+  fontSize: string; // ex 12px
   fontStyle: string;
   fontWeight: string;
   haloColor: string;

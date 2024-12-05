@@ -1,5 +1,9 @@
 # @geoblocks/mapfisprint changes
 
+## 0.2.18
+
+- Restore support for OpenLayers 6.
+
 ## 0.2.17
 
 - Evaluate geometry functions.

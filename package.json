@@ -31,7 +31,7 @@
     "@geoblocks/print": "0.7.9"
   },
   "peerDependencies": {
-    "ol": "7 || 8 || 9 || 10"
+    "ol": "6 || 7 || 8 || 9 || 10"
   },
   "devDependencies": {
     "@geoblocks/print": "0.7.9",

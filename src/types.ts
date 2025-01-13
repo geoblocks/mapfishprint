@@ -151,6 +151,7 @@ export interface MFPSpec {
   attributes: Partial<MFPAttributes>;
   layout: string;
   format: string;
+  lang?: string;
   smtp?: Record<string, string>;
 }
 

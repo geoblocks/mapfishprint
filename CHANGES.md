@@ -1,5 +1,13 @@
 # @geoblocks/mapfisprint changes
 
+## 0.2.20
+
+- Improve fonts defaults handling
+
+## 0.2.19
+
+- Add optional lang attribute to print spec
+
 ## 0.2.18
 
 - Restore support for OpenLayers 6.

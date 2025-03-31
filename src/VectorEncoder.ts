@@ -559,14 +559,14 @@ export default class VectorEncoder {
   ) {
     const label = textStyle.getText();
     if (label) {
-      const fp = getFontParameters(textStyle.getFont() || 'sans-serif');
+      const fp = getFontParameters(textStyle.getFont() || '12px sans-serif');
       const symbolizer = {
         type: 'text',
         label: textStyle.getText(),
-        fontFamily: fp.family,
-        fontSize: fp.size,
-        fontStyle: fp.style,
-        fontWeight: fp.weight,
+        fontFamily: fp?.family ?? 'sans-serif',
+        fontSize: fp?.size ?? '12px',
+        fontStyle: fp?.style ?? 'normal',
+        fontWeight: fp?.weight ?? 'normal',
         // FIXME: missing fontVariant, is it supported in MFP?
         labelXOffset: textStyle.getOffsetX(),
         // OL and MFP behaves differently on the Y offset

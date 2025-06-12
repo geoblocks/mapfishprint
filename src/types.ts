@@ -143,8 +143,19 @@ export interface MFPMap {
   pdfA?: boolean;
 }
 
+/**
+ * Either icons or classes should be defined
+ */
+export interface MFPLegend {
+  name: string;
+  dpi?: number;
+  icons?: string[];
+  classes?: MFPLegend[];
+}
+
 export interface MFPAttributes {
   map: MFPMap;
+  legend: MFPLegend;
 }
 
 export interface MFPSpec {

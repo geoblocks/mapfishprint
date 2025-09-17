@@ -164,6 +164,7 @@ export interface MFPSpec {
   format: string;
   lang?: string;
   smtp?: Record<string, string>;
+  outputFilename?: string;
 }
 
 export interface MFPReportResponse {

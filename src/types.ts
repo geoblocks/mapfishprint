@@ -156,6 +156,8 @@ export interface MFPLegend {
 export interface MFPAttributes {
   map: MFPMap;
   legend: MFPLegend;
+  // There can be many other "optional" attributes, a template can declare as many as needed
+  [key: string]: unknown;
 }
 
 export interface MFPSpec {

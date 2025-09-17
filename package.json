@@ -37,16 +37,16 @@
     "@geoblocks/print": "0.7.9",
     "@geoblocks/recast-utils": "0.1.0",
     "@types/geojson": "7946.0.16",
-    "@typescript-eslint/eslint-plugin": "8.28.0",
-    "color-name": "2.0.0",
+    "@typescript-eslint/eslint-plugin": "8.44.0",
+    "color-name": "2.0.2",
     "color-parse": "2.0.2",
-    "eslint": "9.23.0",
-    "eslint-config-prettier": "9.1.0",
-    "eslint-plugin-prettier": "5.2.5",
+    "eslint": "9.35.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.4",
     "gh-pages": "6.3.0",
     "ol": "^9.0.0",
-    "prettier": "3.5.3",
-    "typedoc": "0.28.1",
-    "typescript": "5.8.2"
+    "prettier": "3.6.2",
+    "typedoc": "0.28.13",
+    "typescript": "5.9.2"
   }
 }

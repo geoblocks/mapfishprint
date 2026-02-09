@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert';
 import Map from 'ol/Map.js';
-import {MFPEncoder, BaseCustomizer} from './lib/index.js';
+import {MFPEncoder, MFPVectorEncoder, BaseCustomizer} from './lib/index.js';
 import TileLayer from 'ol/layer/Tile.js';
 import OSM from 'ol/source/OSM.js';
 import {View} from 'ol';
@@ -321,6 +321,51 @@ test('Vector features', async (t) => {
           fontColor: '#333333',
         },
       ],
+    },
+  });
+});
+
+test('MFPVectorEncoder can encode a circle with a circle in its style.geometry', async (t) => {
+  const geomStyleFn = () => {
+    return new Style({
+      geometry: fCircle.getGeometry(),
+      fill,
+      stroke,
+    });
+  };
+  fCircle.setStyle(geomStyleFn);
+  const vectorLayer = new VectorLayer({
+    source: new VectorSource({
+      features: [fCircle],
+    }),
+  });
+  const customizer = new BaseCustomizer();
+  const resolution = 1.0583354500042335;
+  const encodedSpecialLayer = new MFPVectorEncoder(vectorLayer.getLayerState(), customizer).encodeVectorLayer(
+    resolution,
+  );
+
+  assert.deepEqual(encodedSpecialLayer.geoJson.features[0], {
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [796622, 5836960],
+          [796619.0710678119, 5836967.071067812],
+          [796612, 5836970],
+          [796604.9289321881, 5836967.071067812],
+          [796602, 5836960],
+          [796604.9289321881, 5836952.928932188],
+          [796612, 5836950],
+          [796619.0710678119, 5836952.928932188],
+          [796622, 5836960],
+        ],
+      ],
+    },
+    properties: {
+      name: 'A circle',
+      _mfp_style: '1',
     },
   });
 });

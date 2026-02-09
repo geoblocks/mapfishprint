@@ -167,8 +167,13 @@ export default class VectorEncoder {
     if (styleFunction) {
       styleData = styleFunction(feature, resolution) as null | Style | Style[];
     }
-    if (feature.getGeometry().getType() === 'Circle') {
-      feature = this.featureCircleAsPolygon(feature as Feature<Circle>);
+
+    const featureGeometry = feature.getGeometry();
+    if (featureGeometry.getType() === 'Circle') {
+      const featureId = feature.getId();
+      feature = feature.clone();
+      feature.setId(featureId);
+      feature.setGeometry(fromCircle(featureGeometry as Circle, Constants.CIRCLE_TO_POLYGON_SIDES));
     }
     const origGeojsonFeature = this.geojsonFormat.writeFeatureObject(feature);
 
@@ -186,13 +191,23 @@ export default class VectorEncoder {
       // FIXME: the return of the function is very complicate and would require
       // handling more cases than we actually do
       let geometry: any = style.getGeometry();
-      let geojsonFeature;
+      // Fallback to the feature geometry if style doesn't give one.
+      if (geometry === null) {
+        geometry = featureGeometry;
+      }
       // In some cases, the geometries are objects, in other cases they're functions.
       // we need to ensure we're handling functions, wether they return an object or not.
       if (typeof geometry === 'function') {
         geometry = geometry(feature);
       }
-      if (geometry && typeof geometry === 'object') {
+      // no need to encode features with no geometry
+      if (!geometry) return;
+
+      if (geometry.getType() === 'Circle') {
+        geometry = fromCircle(geometry as Circle, Constants.CIRCLE_TO_POLYGON_SIDES);
+      }
+      let geojsonFeature;
+      if (typeof geometry === 'object') {
         // note that (typeof null === 'object')
         const styledFeature = feature.clone();
         styledFeature.setGeometry(geometry);
@@ -200,11 +215,6 @@ export default class VectorEncoder {
         geojsonFeatures.push(geojsonFeature);
       } else {
         geojsonFeature = origGeojsonFeature;
-        geometry = feature.getGeometry();
-        // no need to encode features with no geometry
-        if (!geometry) {
-          return;
-        }
         if (!this.customizer_.geometryFilter(geometry)) {
           return;
         }
@@ -597,16 +607,5 @@ export default class VectorEncoder {
       this.customizer_.text(this.layerState_, geojsonFeature, symbolizer, textStyle);
       symbolizers.push(symbolizer);
     }
-  }
-
-  /**
-   * Converts a circle feature to a N sides polygon feature.
-   * Sides are defined in Constants.CIRCLE_TO_POLYGON_SIDES.
-   */
-  protected featureCircleAsPolygon(feature: Feature<Circle>) {
-    return new Feature({
-      ...feature.getProperties(),
-      geometry: fromCircle(feature.getGeometry(), Constants.CIRCLE_TO_POLYGON_SIDES),
-    });
   }
 }

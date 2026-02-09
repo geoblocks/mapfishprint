@@ -1,4 +1,12 @@
-# @geoblocks/mapfisprint changes
+# @geoblocks/mapfishprint changes
+
+## 0.3.0
+
+- Resolve a bug where a style with its own geometry as a Circle was transformed into a GeometryCollection resulting in an error
+
+Breaking changes:
+
+- VectorEncoder.featureCircleAsPolygon() was removed.
 
 ## 0.2.20
 
